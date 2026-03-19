@@ -2,6 +2,7 @@ import uuid
 from io import BytesIO
 
 import boto3
+from botocore.config import Config
 from PIL import Image
 from django.conf import settings
 
@@ -19,28 +20,29 @@ class FileService:
     def __init__(self):
         self.s3 = boto3.client(
             's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_S3_REGION_NAME,
+            endpoint_url=settings.R2_ENDPOINT_URL,
+            aws_access_key_id=settings.R2_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
+            config=Config(region_name='auto', signature_version='s3v4'),
         )
-        self.bucket = settings.AWS_STORAGE_BUCKET_NAME
+        self.bucket = settings.R2_BUCKET_NAME
+        self.public_url = settings.R2_PUBLIC_URL.rstrip('/')
 
-    def _upload_to_s3(self, file_bytes, key, content_type='image/jpeg'):
+    def _upload(self, file_bytes, key, content_type='image/jpeg'):
         self.s3.put_object(
             Bucket=self.bucket,
             Key=key,
             Body=file_bytes,
             ContentType=content_type,
-            ACL='public-read',
         )
-        return f'https://{self.bucket}.s3.amazonaws.com/{key}'
+        return f'{self.public_url}/{key}'
 
     def upload_files(self, files, path='', file_type=''):
         created = []
         for f in files:
             unique_name = f'{uuid.uuid4()}-{f.name}'
             key = f'{path}/{unique_name}' if path else unique_name
-            url = self._upload_to_s3(f.read(), key, f.content_type)
+            url = self._upload(f.read(), key, f.content_type)
 
             db_file = File.objects.create(
                 original_file_name=f.name,
@@ -57,7 +59,6 @@ class FileService:
 
         ratio = width / img.width
         new_height = int(img.height * ratio)
-        # Only downscale, never upscale
         if width < img.width:
             img = img.resize((width, new_height), Image.LANCZOS)
 
@@ -72,12 +73,11 @@ class FileService:
             original_bytes = f.read()
             file_set = {}
 
-            # Upload resized versions
             for size_key, width in self.SIZES.items():
                 resized = self._resize_image(original_bytes, width)
                 unique_name = f'{uuid.uuid4()}-{f.name}'
                 key = f'{path}/{width}/{unique_name}' if path else f'{width}/{unique_name}'
-                url = self._upload_to_s3(resized, key)
+                url = self._upload(resized, key)
 
                 db_file = File.objects.create(
                     original_file_name=f.name,
@@ -86,10 +86,9 @@ class FileService:
                 )
                 file_set[size_key] = db_file
 
-            # Upload original
             unique_name = f'{uuid.uuid4()}-{f.name}'
             key = f'{path}/original/{unique_name}' if path else f'original/{unique_name}'
-            url = self._upload_to_s3(original_bytes, key, f.content_type)
+            url = self._upload(original_bytes, key, f.content_type)
 
             db_file = File.objects.create(
                 original_file_name=f.name,

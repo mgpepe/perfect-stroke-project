@@ -121,14 +121,12 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
 }
 
-# AWS S3
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='')
-AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-central-1')
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = 'public-read'
-AWS_QUERYSTRING_AUTH = False
+# Cloudflare R2 (S3-compatible)
+R2_ACCESS_KEY_ID = config('R2_ACCESS_KEY_ID', default='')
+R2_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY', default='')
+R2_ENDPOINT_URL = config('R2_ENDPOINT_URL', default='')
+R2_BUCKET_NAME = config('R2_BUCKET_NAME', default='')
+R2_PUBLIC_URL = config('R2_PUBLIC_URL', default='')
 
 # SendGrid
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', default='')
