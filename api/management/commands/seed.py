@@ -102,7 +102,7 @@ class Command(BaseCommand):
             'Daler Rowney': ['Aquafine', 'Artists'],
             'Sennelier': ["l'Aquarelle"],
             'Holbein': ['Artists Watercolor'],
-        ]
+        }
         for brand_name, models in brands_and_models.items():
             brand = self._create_if_not_exists(Brand, name=brand_name)
             for model_name in models:
