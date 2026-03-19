@@ -1,0 +1,14 @@
+Django==5.1.4
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.4.0
+django-cors-headers==4.6.0
+django-storages[s3]==1.14.4
+boto3==1.35.81
+Pillow==11.0.0
+psycopg2-binary==2.9.10
+python-decouple==3.8
+requests==2.32.3
+sendgrid==6.11.0
+gunicorn==23.0.0
+drf-spectacular==0.28.0
+pyodbc==5.2.0
