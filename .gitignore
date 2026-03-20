@@ -37,3 +37,9 @@ staticfiles/
 # OS
 .DS_Store
 Thumbs.db
+firebase-backup/
+ps_export/
+r2_image_map.json
+*.json
+!package.json
+thank-you-project-firebase-adminsdk*

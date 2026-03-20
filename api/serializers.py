@@ -30,9 +30,12 @@ class BrandModelEditSerializer(serializers.ModelSerializer):
 
 
 class ColorGetSerializer(serializers.ModelSerializer):
+    hex = serializers.CharField(source='hex_code', read_only=True)
+    hexCode = serializers.CharField(source='hex_code', read_only=True)
+
     class Meta:
         model = Color
-        fields = ['id', 'name', 'hex_code']
+        fields = ['id', 'name', 'hex_code', 'hex', 'hexCode']
 
 
 class ColorEditSerializer(serializers.ModelSerializer):
@@ -311,17 +314,113 @@ class StrokeGetMaxSerializer(serializers.ModelSerializer):
         ]
 
 
-class StrokeGetImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
+class PaperFrontendSerializer(serializers.ModelSerializer):
+    """Paper serializer with camelCase and nested objects for frontend."""
+    color = ColorGetSerializer(read_only=True)
+    brand = BrandSerializer(read_only=True)
+    brandModel = BrandModelGetSerializer(source='brand_model', read_only=True)
+    paperMaterial = PaperMaterialGetSerializer(source='paper_material', read_only=True)
+    paperSurface = PaperSurfaceGetSerializer(source='paper_surface', read_only=True)
+    store = StoreGetSerializer(read_only=True)
+    originalSize = serializers.CharField(source='original_size')
+
+    class Meta:
+        model = Paper
+        fields = [
+            'id', 'color', 'gsm', 'brand', 'brandModel', 'ref',
+            'originalSize', 'paperMaterial', 'paperSurface',
+            'store', 'price', 'verbose_name',
+        ]
+
+
+class StrokeFrontendListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for card grid — no related_paints or paper."""
+    order_number = serializers.IntegerField(source='order_id')
+    name = serializers.CharField(source='title')
+    photos = serializers.SerializerMethodField()
+    purchase = serializers.SerializerMethodField()
 
     class Meta:
         model = Stroke
-        fields = ['id', 'order_id', 'image_url']
+        fields = ['id', 'order_number', 'name', 'description', 'photos', 'purchase']
 
-    def get_image_url(self, obj):
-        if obj.image_600:
-            return obj.image_600.url_path
-        return obj.image_url
+    def get_photos(self, obj):
+        r2_map = self.context.get('r2_map', {})
+        r2_base = self.context.get('r2_base', '')
+        result = {}
+        if obj.id in r2_map:
+            paths = r2_map[obj.id]
+            if '600' in paths:
+                result['thumb_600x600'] = {
+                    'download_url': f'{r2_base}/{paths["600"]}',
+                }
+            if 'original' in paths:
+                result['original'] = {
+                    'download_url': f'{r2_base}/{paths["original"]}',
+                }
+        return result if result else {}
+
+    def get_purchase(self, obj):
+        return None
+
+
+class StrokeFrontendSerializer(serializers.ModelSerializer):
+    """Serializer matching the frontend's expected Stroke shape."""
+    order_number = serializers.IntegerField(source='order_id')
+    name = serializers.CharField(source='title')
+    photos = serializers.SerializerMethodField()
+    related_paints = serializers.SerializerMethodField()
+    paper = PaperFrontendSerializer(read_only=True)
+    purchase = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Stroke
+        fields = [
+            'id', 'order_number', 'name', 'description', 'tags',
+            'photos', 'related_paints', 'paper', 'purchase',
+        ]
+
+    def get_photos(self, obj):
+        r2_map = self.context.get('r2_map', {})
+        r2_base = self.context.get('r2_base', '')
+        result = {}
+        if obj.id in r2_map:
+            paths = r2_map[obj.id]
+            if '600' in paths:
+                result['thumb_600x600'] = {
+                    'download_url': f'{r2_base}/{paths["600"]}',
+                    'reference': paths['600'],
+                }
+            if 'original' in paths:
+                result['original'] = {
+                    'download_url': f'{r2_base}/{paths["original"]}',
+                    'reference': paths['original'],
+                }
+        return result if result else {}
+
+    def get_related_paints(self, obj):
+        paints = obj.stroke_paints.select_related(
+            'paint__brand', 'paint__brand_model', 'paint__color'
+        ).all()
+        return PaintGetSerializer([sp.paint for sp in paints], many=True).data
+
+    def get_purchase(self, obj):
+        return None
+
+
+class StrokeGetImageSerializer(serializers.ModelSerializer):
+    imageUrl = serializers.SerializerMethodField()
+    orderId = serializers.IntegerField(source='order_id')
+
+    class Meta:
+        model = Stroke
+        fields = ['id', 'orderId', 'imageUrl']
+
+    def get_imageUrl(self, obj):
+        r2_map = self.context.get('r2_map', {})
+        if obj.id in r2_map and '600' in r2_map[obj.id]:
+            return r2_map[obj.id]['600']
+        return ''
 
 
 class StrokeGetImage1800Serializer(serializers.ModelSerializer):

@@ -1,6 +1,8 @@
 import json
+import os
 import random
 
+from django.conf import settings
 from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -29,10 +31,19 @@ from .serializers import (
     StrokeGetMinSerializer, StrokeGetMaxSerializer,
     StrokeGetImageSerializer, StrokeGetImage1800Serializer,
     StrokeEditSerializer, StrokeBulkEditSerializer,
+    StrokeFrontendSerializer, StrokeFrontendListSerializer,
 )
 from .pagination import RangePagination
 from .filters import parse_filter_ids, parse_range_notation
 from .services.file_service import FileService
+
+
+def _load_r2_map():
+    map_path = os.path.join(settings.BASE_DIR, 'r2_image_map.json')
+    if os.path.exists(map_path):
+        with open(map_path) as f:
+            return json.load(f)
+    return {}
 
 
 # ─── Mixin for filter-by-ids pattern ─────────────────────────────
@@ -261,6 +272,8 @@ class ToolViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
 # ─── Strokes ─────────────────────────────────────────────────────
 
 class StrokeViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+
     queryset = Stroke.objects.prefetch_related(
         'stroke_paints__paint__brand',
         'stroke_paints__paint__brand_model',
@@ -324,8 +337,41 @@ class StrokeViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='get-images')
     def get_images(self, request):
-        queryset = self.get_queryset()
-        serializer = StrokeGetImageSerializer(queryset, many=True)
+        r2_map = _load_r2_map()
+        stroke_ids_with_images = set(r2_map.keys())
+        queryset = self.get_queryset().filter(id__in=stroke_ids_with_images)
+        serializer = StrokeGetImageSerializer(queryset, many=True, context={'r2_map': r2_map})
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='frontend/all')
+    def frontend_list(self, request):
+        """Returns strokes with images in the shape the frontend expects."""
+        r2_map = _load_r2_map()
+        r2_base = settings.R2_PUBLIC_URL.rstrip('/')
+        # Only return strokes that have images on R2
+        stroke_ids_with_images = set(r2_map.keys())
+        queryset = self.get_queryset().filter(id__in=stroke_ids_with_images)
+        serializer = StrokeFrontendListSerializer(
+            queryset, many=True,
+            context={'r2_map': r2_map, 'r2_base': r2_base},
+        )
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], url_path='frontend')
+    def frontend_detail(self, request, pk=None):
+        """Returns a single stroke by order_number in the shape the frontend expects."""
+        r2_map = _load_r2_map()
+        r2_base = settings.R2_PUBLIC_URL.rstrip('/')
+        try:
+            order_id = int(pk)
+            instance = Stroke.objects.filter(order_id=order_id).first()
+        except (ValueError, TypeError):
+            instance = Stroke.objects.filter(id=pk).first()
+        if not instance:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = StrokeFrontendSerializer(
+            instance, context={'r2_map': r2_map, 'r2_base': r2_base},
+        )
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='get-random')
