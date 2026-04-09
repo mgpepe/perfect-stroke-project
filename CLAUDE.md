@@ -4,18 +4,20 @@ A watercolor/painting brushstroke collection and charity project. The concept: e
 
 ## Architecture
 
-### Active Repos (all in ~/www/)
+### Active Repos (all on GitHub under mgpepe, local in ~/www/)
 
-| Repo | Purpose | Stack | Port |
-|------|---------|-------|------|
-| `perfect-stroke-project` | Backend API | Django 5.1, DRF, PostgreSQL, Cloudflare R2 | 8200 |
-| `react-perfect-stroke` | Public website | React 18, Parcel, styled-components, Three.js | 1240 |
-| `cms-react-psp` | Admin CMS | React 18, TypeScript, Parcel | 1239 |
+| Repo | GitHub | Purpose | Stack | Port |
+|------|--------|---------|-------|------|
+| `perfect-stroke-project` | `mgpepe/perfect-stroke-project` | Backend API | Django 5.1, DRF, PostgreSQL, Cloudflare R2 | 8200 |
+| `react-perfect-stroke` | `mgpepe/perfect-stroke-project-frontend` | Public website | React 18, Parcel, styled-components, Three.js | 1240 |
+| `cms-react-psp` | `mgpepe/perfect-stroke-project-cms` | Admin CMS | React 18, TypeScript, Parcel | 1239 |
+| `eink-perfect-stroke` | `mgpepe/perfect-stroke-project-eink` | E-ink display app | Python 3.7, Pillow, qrcode | — |
 
-### Archived/Deleted Repos (backed up on Bitbucket under teamhakomo)
+### Archived/Deleted Repos
 
 - `api-perfect-stroke` — Old .NET Core 2.2 backend (2020), used AWS S3 + SQL Server
 - `cms-perfect-stroke` — Old React 16 admin CMS (2020), used react-admin
+- All legacy Bitbucket repos (teamhakomo) have been deleted. Active repos migrated to GitHub (April 2026).
 
 ## Deployment
 
@@ -85,7 +87,7 @@ All use UUID string primary keys.
 ### Known issues
 - Firebase Auth is still wired into `AuthContext.js` and `RequireAuth.tsx` — needs migration to Django JWT to fully remove Firebase
 - `react-perfect-stroke/.env*` still has Firebase config for `thank-you-project` Firebase project
-- Images not rendering on Firefox (under investigation — may be CSS 3D transform issue or JS error)
+- Mobile Three.js gallery can drop some images when loading 400 textures simultaneously (browser connection throttling)
 
 ## Admin CMS (cms-react-psp)
 
