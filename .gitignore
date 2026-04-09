@@ -43,3 +43,10 @@ r2_image_map.json
 *.json
 !package.json
 thank-you-project-firebase-adminsdk*
+
+# SSL certificates
+cert/
+
+# Playwright MCP (keep folder, ignore contents)
+.playwright-mcp/*
+!.playwright-mcp/.gitkeep
