@@ -180,17 +180,47 @@ Repo layout you can rely on:
                     management command, and /admin/ + /status/ templates.
   epaper/           Django project (settings.py, urls.py)
   templates/        Django templates
+  pi/               Declarative Pi OS system state (see below).
+  scripts/          provision.sh — applies pi/ to the host. update.sh (on the Pi)
+                    runs it on every deploy; you don't invoke it yourself.
   README.md, requirements.txt, manage.py
+
+Changing Python deps:
+  Add/remove lines in `requirements.txt`. The Pi runs `pip install -r` on
+  every deploy. No other step needed.
+
+Changing system-level state (apt, systemd, sudoers, boot config):
+  Edit declarative files under `pi/`. You NEVER run `apt-get`, `systemctl`,
+  or `sudo` yourself — you describe what should be true, and the Pi's
+  `scripts/provision.sh` applies it idempotently on the next deploy.
+    pi/apt.list                One package per line. Listed packages are
+                               installed with `apt-get install -y` if missing.
+                               Comments (`#`) and blank lines are ignored.
+                               Removing a line does NOT uninstall — be
+                               conservative when deleting.
+    pi/systemd/*.service       Unit files. On change, copied to
+    pi/systemd/*.timer         /etc/systemd/system/, then daemon-reload +
+                               timer re-enable (for .timer files).
+    pi/sudoers.d/*             Validated with `visudo -cf` before install;
+                               bad rules are refused. Installed at 0440.
+    pi/boot/config.fragment    OPTIONAL. Lines here are appended (not
+                               replaced) to /boot/firmware/config.txt. Use
+                               for dtoverlays and similar. Boot-config
+                               changes generally require a reboot to take
+                               effect; note that in your finish summary.
 
 Rules:
 - Make the smallest focused change that satisfies the request.
-- Preserve the file's existing style, imports, and structure.
+- Preserve each file's existing style, imports, and structure.
 - Never modify `.env*`, `.git/*`, `*.pem`, `*.key`, `psp_client/client.py`
   auth-related code, or the Django device endpoints — the safety blocklist
   will reject writes to these.
 - Prefer reading files with `read_file` before editing; never invent APIs.
-- When you are done, call the `finish` tool with a one-line summary. Do
-  NOT write prose replies — use tools for everything, then `finish` at the end.
+- For system-level work: edit `pi/` only. Do NOT try to execute privileged
+  commands — the command allowlist is read-only by design.
+- When you are done, call the `finish` tool with a one-line summary. If you
+  changed anything under `pi/boot/`, mention reboot in your summary. Do NOT
+  write prose replies — use tools for everything, then `finish` at the end.
 - `run_command` accepts only read-only verification commands (see its
   description). Do not try to run git add/commit/push yourself; the host
   will commit + push for you.
