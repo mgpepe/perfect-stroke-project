@@ -12,6 +12,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from . import github_refs
 from .models import Device, Stroke, Paint, Paper
 
 
@@ -47,7 +48,23 @@ def device_detail(request, device_id):
         device.save(update_fields=['name', 'desired_git_ref', 'updated_at'])
         messages.success(request, 'Device updated.')
         return redirect('panel:devices:detail', device_id=device.id)
-    return render(request, 'panel/devices/detail.html', {'device': device})
+
+    context = {
+        'device': device,
+        'gh_enabled': github_refs.enabled(),
+        'gh_commits': github_refs.recent_commits() if github_refs.enabled() else [],
+        'gh_branches': github_refs.branches() if github_refs.enabled() else [],
+        'gh_tags': github_refs.tags() if github_refs.enabled() else [],
+        'gh_reported_commit': (
+            github_refs.commit_info(device.last_reported_ref)
+            if github_refs.enabled() and device.last_reported_ref else None
+        ),
+        'gh_desired_commit': (
+            github_refs.commit_info(device.desired_git_ref)
+            if github_refs.enabled() and device.desired_git_ref else None
+        ),
+    }
+    return render(request, 'panel/devices/detail.html', context)
 
 
 @staff_member_required(login_url='/admin/login/')

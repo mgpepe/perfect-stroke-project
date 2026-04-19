@@ -130,6 +130,10 @@ R2_PUBLIC_URL = config('R2_PUBLIC_URL', default='')
 
 # SendGrid
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', default='')
+
+# GitHub (used by the /panel/ device version picker)
+GITHUB_REPO = config('GITHUB_REPO', default='mgpepe/perfect-stroke-project-epaper')
+GITHUB_TOKEN = config('GITHUB_TOKEN', default='')
 SERVER_EMAIL_ADDRESS = config('SERVER_EMAIL', default='no-reply@perfectstroke.com')
 
 # API URL (for password reset links etc.)
