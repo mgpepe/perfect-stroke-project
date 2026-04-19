@@ -20,12 +20,8 @@
   <div class="space-y-4">
     <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-4">
       <div class="aspect-square bg-zinc-800 rounded-md overflow-hidden relative">
-        {% if stroke.image_1800 %}
-          <img src="{{ stroke.image_1800.url_path }}" class="absolute inset-0 w-full h-full object-contain">
-        {% elif stroke.image_600 %}
-          <img src="{{ stroke.image_600.url_path }}" class="absolute inset-0 w-full h-full object-contain">
-        {% elif stroke.image_url %}
-          <img src="{{ stroke.image_url }}" class="absolute inset-0 w-full h-full object-contain">
+        {% if hero_url %}
+          <img src="{{ hero_url }}" class="absolute inset-0 w-full h-full object-contain">
         {% else %}
           <div class="absolute inset-0 flex items-center justify-center text-zinc-500 text-sm">no image uploaded</div>
         {% endif %}
@@ -39,14 +35,14 @@
       </form>
     </div>
 
-    {% if stroke.image_original %}
+    {% if image_urls.original or image_urls.1800 %}
     <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-4 text-xs text-zinc-400 space-y-1">
       <div class="text-zinc-500 uppercase tracking-wider text-[10px] font-semibold mb-2">R2 files</div>
-      {% with stroke.image_100 as f %}{% if f %}<div class="flex items-center justify-between"><span>100px</span><a href="{{ f.url_path }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}{% endwith %}
-      {% with stroke.image_600 as f %}{% if f %}<div class="flex items-center justify-between"><span>600px</span><a href="{{ f.url_path }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}{% endwith %}
-      {% with stroke.image_1800 as f %}{% if f %}<div class="flex items-center justify-between"><span>1800px</span><a href="{{ f.url_path }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}{% endwith %}
-      {% with stroke.image_2500 as f %}{% if f %}<div class="flex items-center justify-between"><span>2500px</span><a href="{{ f.url_path }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}{% endwith %}
-      {% with stroke.image_original as f %}{% if f %}<div class="flex items-center justify-between"><span>original</span><a href="{{ f.url_path }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}{% endwith %}
+      {% if image_urls.100 %}<div class="flex items-center justify-between"><span>100px</span><a href="{{ image_urls.100 }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}
+      {% if image_urls.600 %}<div class="flex items-center justify-between"><span>600px</span><a href="{{ image_urls.600 }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}
+      {% if image_urls.1800 %}<div class="flex items-center justify-between"><span>1800px</span><a href="{{ image_urls.1800 }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}
+      {% if image_urls.2500 %}<div class="flex items-center justify-between"><span>2500px</span><a href="{{ image_urls.2500 }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}
+      {% if image_urls.original %}<div class="flex items-center justify-between"><span>original</span><a href="{{ image_urls.original }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}
     </div>
     {% endif %}
   </div>

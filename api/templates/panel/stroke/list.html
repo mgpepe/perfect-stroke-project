@@ -28,10 +28,8 @@
   <a href="{% url 'panel:strokes:detail' pk=s.pk %}"
      class="group bg-zinc-900 ring-1 ring-zinc-800 rounded-lg overflow-hidden hover:ring-zinc-600 transition-colors">
     <div class="aspect-square bg-zinc-800 relative">
-      {% if s.image_600 %}
-        <img src="{{ s.image_600.url_path }}" alt="" class="absolute inset-0 w-full h-full object-cover">
-      {% elif s.image_url %}
-        <img src="{{ s.image_url }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+      {% if s.thumb_url %}
+        <img src="{{ s.thumb_url }}" alt="" loading="lazy" class="absolute inset-0 w-full h-full object-cover">
       {% else %}
         <div class="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">no image</div>
       {% endif %}

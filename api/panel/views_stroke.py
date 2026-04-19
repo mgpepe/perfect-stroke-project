@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from api.models import Paint, Paper, Stroke, StrokePaint, StrokeTool, Tool
+from .images import annotate_strokes, stroke_url
 from .uploads import attach_stroke_image_set, upload_stroke_image_set
 
 
@@ -32,6 +33,7 @@ def stroke_list(request):
         page = 1
     total = qs.count()
     strokes = list(_paginate(qs, page))
+    annotate_strokes(strokes, sizes=('600',))
     return render(request, 'panel/stroke/list.html', {
         'strokes': strokes,
         'query': query,
@@ -140,6 +142,14 @@ def stroke_detail(request, pk):
         'papers': Paper.objects.select_related('brand').order_by('verbose_name', 'ref'),
         'paints': Paint.objects.select_related('brand', 'color').order_by('brand__name', 'name'),
         'tools': Tool.objects.select_related('brand', 'type').order_by('brand__name', 'id'),
+        'hero_url': stroke_url(stroke, '1800') or stroke_url(stroke, '600') or stroke_url(stroke, 'original'),
+        'image_urls': {
+            '100': stroke_url(stroke, '100'),
+            '600': stroke_url(stroke, '600'),
+            '1800': stroke_url(stroke, '1800'),
+            '2500': stroke_url(stroke, '2500'),
+            'original': stroke_url(stroke, 'original'),
+        },
     })
 
 
