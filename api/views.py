@@ -376,13 +376,31 @@ class StrokeViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='get-random')
     def get_random(self, request):
-        ids = list(Stroke.objects.values_list('id', flat=True))
-        if not ids:
+        """Return a random stroke that has an image in R2.
+
+        Query params:
+          exclude: comma-separated stroke ids to exclude (used by display clients
+                   to avoid recently-shown images).
+        """
+        exclude_raw = request.query_params.get('exclude', '')
+        exclude_ids = {s.strip() for s in exclude_raw.split(',') if s.strip()}
+        r2_map = _load_r2_map()
+        r2_base = settings.R2_PUBLIC_URL.rstrip('/')
+        candidate_ids = list(set(r2_map.keys()) - exclude_ids)
+        if not candidate_ids:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        random_id = random.choice(ids)
-        stroke = Stroke.objects.select_related('image_1800').get(id=random_id)
-        serializer = StrokeGetImage1800Serializer(stroke)
-        return Response(serializer.data)
+        random_id = random.choice(candidate_ids)
+        stroke = Stroke.objects.filter(id=random_id).first()
+        if not stroke:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        paths = r2_map.get(random_id, {})
+        path = paths.get('original') or paths.get('2500') or paths.get('1800') or paths.get('600')
+        image_url = f'{r2_base}/{path.lstrip("/")}' if path else ''
+        return Response({
+            'id': str(stroke.id),
+            'order_id': stroke.order_id,
+            'image_url': image_url,
+        })
 
     @action(detail=False, methods=['put'], url_path='bulk')
     def bulk_update(self, request):
