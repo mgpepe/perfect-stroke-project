@@ -361,7 +361,7 @@ class ModifyJob(models.Model):
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='queued')
     current_phase = models.CharField(max_length=16, choices=PHASE_CHOICES, blank=True, default='')
     round_num = models.IntegerField(default=0)
-    max_rounds = models.IntegerField(default=3)
+    max_rounds = models.IntegerField(default=10)
     cost_usd = models.FloatField(default=0.0)
     max_cost_usd = models.FloatField(default=200.0)
     model = models.CharField(max_length=64, default='claude-opus-4-7')
