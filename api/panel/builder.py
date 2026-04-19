@@ -459,12 +459,12 @@ def _run_job(job_id: str):
         repo_dir = _clone(job, workspace_root)
 
         previous_feedback = ''
-        for round_num in range(job.max_rounds):
-            job.round_num = round_num
-            job.current_phase = 'editing' if round_num == 0 else 'correcting'
+        for round_idx in range(job.max_rounds):
+            job.round_num = round_idx + 1  # 1-indexed for humans
+            job.current_phase = 'editing' if round_idx == 0 else 'correcting'
             job.save(update_fields=['round_num', 'current_phase', 'updated_at'])
 
-            job.append_log(f'=== round {round_num+1}/{job.max_rounds} ===')
+            job.append_log(f'=== round {round_idx+1}/{job.max_rounds} ===')
             ok, summary = _run_agent(client, job, repo_dir, job.prompt, previous_feedback)
             if not ok:
                 job.append_log(f'agent did not finish cleanly: {summary}')
@@ -481,7 +481,7 @@ def _run_job(job_id: str):
                 f'Your previous edit did not pass the post-edit tests. Fix this and '
                 f'call finish again:\n\n{test_detail[:3000]}'
             )
-            if round_num == job.max_rounds - 1:
+            if round_idx == job.max_rounds - 1:
                 raise RuntimeError(f'tests still failing after {job.max_rounds} rounds')
 
         sha, diffstat = _commit_and_push(repo_dir, job, summary)
