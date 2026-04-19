@@ -184,7 +184,7 @@ def stroke_detail(request, pk):
         'paints': Paint.objects.select_related('brand', 'color').order_by('brand__name', 'name'),
         'tools': Tool.objects.select_related('brand', 'type').order_by('brand__name', 'id'),
         'sale': sale,
-        'contacts': Contact.objects.order_by('last_name', 'first_name'),
+        'contacts': Contact.objects.order_by('first_name', 'last_name'),
         'has_sound': has_sound,
         'sound_url': sound_url(stroke.order_id) if has_sound else '',
         'hero_url': stroke_url(stroke, '1800') or stroke_url(stroke, '600') or stroke_url(stroke, 'original'),

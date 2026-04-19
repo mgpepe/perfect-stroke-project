@@ -10,7 +10,7 @@ from api.models import Contact
 
 @staff_member_required(login_url='/admin/login/')
 def contact_list(request):
-    qs = Contact.objects.annotate(sale_count=Count('sales')).order_by('last_name', 'first_name')
+    qs = Contact.objects.annotate(sale_count=Count('sales')).order_by('first_name', 'last_name')
     query = request.GET.get('q', '').strip()
     if query:
         qs = qs.filter(
