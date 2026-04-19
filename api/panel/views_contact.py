@@ -66,7 +66,7 @@ def contact_detail(request, pk):
     )
     for s in sales:
         s.thumb_url = stroke_url(s.stroke, '600')
-    total_revenue = sum((s.price or 0) for s in sales)
+    total_revenue = sum(s.stroke.order_id for s in sales)
 
     return render(request, 'panel/contact/detail.html', {
         'contact': contact,

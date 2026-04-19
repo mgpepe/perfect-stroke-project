@@ -134,7 +134,6 @@ def stroke_detail(request, pk):
                 sale, _ = Sale.objects.get_or_create(stroke=stroke, defaults={'contact': contact})
                 sale.contact = contact
                 sale.sold_at = request.POST.get('sold_at') or None
-                sale.price = _decimal(request.POST.get('price'))
                 sale.notes = (request.POST.get('sale_notes') or '').strip()
                 sale.save()
                 messages.success(request, f'Sale recorded to {contact}.')
