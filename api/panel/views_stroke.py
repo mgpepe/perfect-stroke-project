@@ -10,7 +10,7 @@ from .images import annotate_strokes, stroke_url
 from .uploads import attach_stroke_image_set, upload_stroke_image_set
 
 
-PER_PAGE = 60
+PER_PAGE = 100
 
 
 def _paginate(qs, page):
