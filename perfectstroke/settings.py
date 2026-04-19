@@ -131,9 +131,17 @@ R2_PUBLIC_URL = config('R2_PUBLIC_URL', default='')
 # SendGrid
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', default='')
 
-# GitHub (used by the /panel/ device version picker)
+# GitHub (used by the /panel/ device version picker and the builder)
 GITHUB_REPO = config('GITHUB_REPO', default='mgpepe/perfect-stroke-project-epaper')
 GITHUB_TOKEN = config('GITHUB_TOKEN', default='')
+
+# Anthropic (used by the /panel/modify/ builder agent)
+ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
+BUILDER_MODEL = config('BUILDER_MODEL', default='claude-opus-4-7')
+BUILDER_MAX_COST_USD = config('BUILDER_MAX_COST_USD', default=200.0, cast=float)
+BUILDER_MAX_ROUNDS = config('BUILDER_MAX_ROUNDS', default=3, cast=int)
+BUILDER_ROUND_TIMEOUT_SEC = config('BUILDER_ROUND_TIMEOUT_SEC', default=1200, cast=int)
+BUILDER_WORKSPACE_DIR = config('BUILDER_WORKSPACE_DIR', default='/tmp/psp-builder')
 SERVER_EMAIL_ADDRESS = config('SERVER_EMAIL', default='no-reply@perfectstroke.com')
 
 # API URL (for password reset links etc.)
