@@ -34,6 +34,9 @@
         <div class="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">no image</div>
       {% endif %}
       <div class="absolute top-1.5 left-1.5 bg-black/60 backdrop-blur-sm text-zinc-100 text-[10px] font-mono px-1.5 py-0.5 rounded">#{{ s.order_id }}</div>
+      {% if s.has_sound %}
+        <div class="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-sm px-1.5 py-0.5 rounded" title="Has voice interpretation">🔈</div>
+      {% endif %}
     </div>
     <div class="p-2">
       <div class="text-xs font-medium text-zinc-200 truncate">{{ s.title|default:"Untitled" }}</div>

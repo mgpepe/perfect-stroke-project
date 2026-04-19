@@ -3,6 +3,8 @@
 Audio files live at `assets/paper-collection-sounds/<stroke_id>.wav`.
 They are not tracked in the DB — the filename is the stroke id.
 """
+import time
+
 import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
@@ -10,6 +12,10 @@ from django.conf import settings
 
 
 SOUND_PREFIX = 'assets/paper-collection-sounds'
+
+
+_cache = {'ids': None, 'at': 0.0}
+_TTL = 60  # seconds
 
 
 def _s3():
@@ -50,6 +56,7 @@ def upload_sound(uploaded_file, order_id: int) -> str:
         Body=uploaded_file.read(),
         ContentType=content_type,
     )
+    _cache['at'] = 0.0
     return sound_url(order_id)
 
 
@@ -58,3 +65,42 @@ def delete_sound(order_id: int) -> None:
         _s3().delete_object(Bucket=settings.R2_BUCKET_NAME, Key=sound_key(order_id))
     except ClientError:
         pass
+    _cache['at'] = 0.0  # invalidate
+
+
+def existing_sound_order_ids() -> set:
+    """Cached set of order_ids for which a sound file exists on R2.
+
+    One list_objects_v2 scan per TTL, beats 100 HEAD requests per list page.
+    """
+    now = time.time()
+    if _cache['ids'] is not None and (now - _cache['at']) < _TTL:
+        return _cache['ids']
+
+    ids = set()
+    try:
+        s3 = _s3()
+        token = None
+        while True:
+            kwargs = {'Bucket': settings.R2_BUCKET_NAME, 'Prefix': f'{SOUND_PREFIX}/'}
+            if token:
+                kwargs['ContinuationToken'] = token
+            resp = s3.list_objects_v2(**kwargs)
+            for obj in resp.get('Contents', []):
+                name = obj['Key'].rsplit('/', 1)[-1]
+                stem = name.rsplit('.', 1)[0]
+                if stem.isdigit():
+                    ids.add(int(stem))
+            if not resp.get('IsTruncated'):
+                break
+            token = resp.get('NextContinuationToken')
+    except ClientError:
+        pass
+
+    _cache['ids'] = ids
+    _cache['at'] = now
+    return ids
+
+
+def invalidate_sound_cache() -> None:
+    _cache['at'] = 0.0

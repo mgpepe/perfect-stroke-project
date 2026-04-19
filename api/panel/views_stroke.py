@@ -9,7 +9,7 @@ from decimal import Decimal, InvalidOperation
 
 from api.models import Contact, Paint, Paper, Sale, Stroke, StrokePaint, StrokeTool, Tool
 from .images import annotate_strokes, stroke_url
-from .sounds import delete_sound, sound_exists, sound_url, upload_sound
+from .sounds import delete_sound, existing_sound_order_ids, sound_exists, sound_url, upload_sound
 from .uploads import attach_stroke_image_set, upload_stroke_image_set
 
 
@@ -37,6 +37,9 @@ def stroke_list(request):
     total = qs.count()
     strokes = list(_paginate(qs, page))
     annotate_strokes(strokes, sizes=('600',))
+    sound_ids = existing_sound_order_ids()
+    for s in strokes:
+        s.has_sound = s.order_id in sound_ids
     return render(request, 'panel/stroke/list.html', {
         'strokes': strokes,
         'query': query,
