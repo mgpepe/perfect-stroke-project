@@ -92,6 +92,101 @@
       </div>
     </form>
 
+    <!-- Sale -->
+    <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-6">
+      <h2 class="text-sm font-semibold text-zinc-200 mb-3">Sale</h2>
+      {% if sale %}
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <a href="{% url 'panel:contacts:detail' pk=sale.contact.pk %}" class="text-base font-medium text-zinc-100 hover:underline">
+              {{ sale.contact.first_name }} {{ sale.contact.last_name }}
+            </a>
+            {% if sale.contact.email %}<div class="text-xs text-zinc-500">{{ sale.contact.email }}</div>{% endif %}
+          </div>
+          <form method="post" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="remove_sale">
+            <button type="submit" class="text-xs text-red-400 hover:text-red-300">Remove sale</button>
+          </form>
+        </div>
+        <form method="post" class="space-y-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="save_sale">
+          <input type="hidden" name="contact_id" value="{{ sale.contact.pk }}">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Sold at</label>
+              <input type="date" name="sold_at" value="{{ sale.sold_at|date:'Y-m-d' }}"
+                     class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Price</label>
+              <input type="number" step="0.01" name="price" value="{{ sale.price|default:'' }}"
+                     class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Notes</label>
+            <textarea name="sale_notes" rows="2"
+                      class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">{{ sale.notes }}</textarea>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="px-3 py-1.5 bg-zinc-800 text-zinc-100 text-sm rounded hover:bg-zinc-700">Update sale</button>
+          </div>
+        </form>
+      {% else %}
+        <p class="text-sm text-zinc-500 mb-4">Not sold yet.</p>
+        <form method="post" class="space-y-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="save_sale">
+          <div>
+            <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Buyer</label>
+            <select name="contact_id" onchange="document.getElementById('quick-contact').classList.toggle('hidden', this.value !== '')"
+                    class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+              <option value="">— new contact —</option>
+              {% for c in contacts %}<option value="{{ c.pk }}">{{ c.first_name }} {{ c.last_name }}{% if c.email %} · {{ c.email }}{% endif %}</option>{% endfor %}
+            </select>
+          </div>
+
+          <div id="quick-contact" class="grid grid-cols-2 gap-3 p-3 rounded-md ring-1 ring-zinc-800 bg-zinc-950/40">
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">First name</label>
+              <input type="text" name="new_first_name" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Last name</label>
+              <input type="text" name="new_last_name" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Email</label>
+              <input type="email" name="new_email" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Phone</label>
+              <input type="text" name="new_phone" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Sold at</label>
+              <input type="date" name="sold_at"
+                     class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Price</label>
+              <input type="number" step="0.01" name="price"
+                     class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="px-3 py-1.5 bg-emerald-500/90 text-white text-sm rounded hover:bg-emerald-500">Record sale</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+
     <!-- Paints -->
     <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-6">
       <h2 class="text-sm font-semibold text-zinc-200 mb-3">Paints used</h2>

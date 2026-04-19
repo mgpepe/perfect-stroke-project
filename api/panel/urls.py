@@ -1,8 +1,8 @@
 from django.urls import include, path
 
 from . import (
-    views_device, views_generic, views_home, views_paint, views_paper,
-    views_stroke, views_tool,
+    views_contact, views_device, views_generic, views_home, views_modify,
+    views_paint, views_paper, views_stroke, views_tool,
 )
 from .registry import LOOKUPS
 
@@ -41,6 +41,20 @@ tools_urls = ([
     path('<str:pk>/delete/', views_tool.tool_delete, name='delete'),
 ], 'tools')
 
+modify_urls = ([
+    path('', views_modify.modify_list, name='list'),
+    path('new/', views_modify.modify_new, name='new'),
+    path('<str:job_id>/', views_modify.modify_detail, name='detail'),
+    path('<str:job_id>/status.json', views_modify.modify_job_json, name='status'),
+], 'modify')
+
+contacts_urls = ([
+    path('', views_contact.contact_list, name='list'),
+    path('new/', views_contact.contact_new, name='new'),
+    path('<str:pk>/', views_contact.contact_detail, name='detail'),
+    path('<str:pk>/delete/', views_contact.contact_delete, name='delete'),
+], 'contacts')
+
 
 def _generic_urls(slug):
     return ([
@@ -59,10 +73,12 @@ generic_patterns = [
 
 urlpatterns = [
     path('', views_home.home, name='home'),
+    path('modify/', include(modify_urls, namespace='modify')),
     path('devices/', include(devices_urls, namespace='devices')),
     path('strokes/', include(strokes_urls, namespace='strokes')),
     path('paints/', include(paints_urls, namespace='paints')),
     path('papers/', include(papers_urls, namespace='papers')),
     path('tools/', include(tools_urls, namespace='tools')),
+    path('contacts/', include(contacts_urls, namespace='contacts')),
     path('', include((generic_patterns, 'generic'), namespace='generic')),
 ]

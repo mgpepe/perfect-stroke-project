@@ -1,0 +1,36 @@
+{% extends 'panel/base.html' %}
+{% block title %}New modification{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+  <a href="{% url 'panel:modify:list' %}" class="text-sm text-zinc-500 hover:text-zinc-100 inline-flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back to modifications
+  </a>
+  <h1 class="text-2xl font-semibold text-zinc-100 mt-2 mb-6">New modification</h1>
+
+  <form method="post" class="bg-zinc-900 rounded-lg ring-1 ring-zinc-800 p-6 space-y-5">
+    {% csrf_token %}
+
+    <div>
+      <label for="prompt" class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">
+        What should change? <span class="text-red-400">*</span>
+      </label>
+      <textarea name="prompt" id="prompt" rows="8" required autofocus
+                class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none resize-y"
+                placeholder="e.g. Make the QR code twice as big on the rendered image.&#10;Change the default background color from #111111 to deep blue (#0b1a2b).&#10;Show the stroke order number in the top-left corner in a clean monospace font.">{{ form.prompt|default:'' }}</textarea>
+      <p class="mt-2 text-xs text-zinc-500">
+        The agent will edit the epaper repo, commit to <code class="font-mono">main</code>, and push. The Pi picks up the new commit within 5 min.
+        Cost ceiling: <span class="font-mono">${{ BUILDER_MAX_COST_USD|default:"200" }}</span>. Correction rounds: up to 3.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <a href="{% url 'panel:modify:list' %}" class="text-sm text-zinc-400 hover:text-zinc-100">Cancel</a>
+      <button type="submit" class="px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">
+        Run agent
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

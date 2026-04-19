@@ -220,6 +220,8 @@ NAV_GROUPS = [
         'key': 'operations',
         'label': 'Operations',
         'items': [
+            {'slug': 'modify', 'label': 'Modify', 'icon': 'sparkle',
+             'url_name': 'panel:modify:list', 'match': 'modify'},
             {'slug': 'devices', 'label': 'Devices', 'icon': 'device',
              'url_name': 'panel:devices:list', 'match': 'device'},
         ],
@@ -236,6 +238,14 @@ NAV_GROUPS = [
              'url_name': 'panel:papers:list', 'match': 'paper'},
             {'slug': 'tools', 'label': 'Tools', 'icon': 'wrench',
              'url_name': 'panel:tools:list', 'match': 'tool'},
+        ],
+    },
+    {
+        'key': 'sales',
+        'label': 'Sales',
+        'items': [
+            {'slug': 'contacts', 'label': 'Contacts', 'icon': 'user',
+             'url_name': 'panel:contacts:list', 'match': 'contact'},
         ],
     },
     {

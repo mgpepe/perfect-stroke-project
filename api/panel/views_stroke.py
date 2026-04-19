@@ -5,7 +5,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
-from api.models import Paint, Paper, Stroke, StrokePaint, StrokeTool, Tool
+from decimal import Decimal, InvalidOperation
+
+from api.models import Contact, Paint, Paper, Sale, Stroke, StrokePaint, StrokeTool, Tool
 from .images import annotate_strokes, stroke_url
 from .uploads import attach_stroke_image_set, upload_stroke_image_set
 
@@ -125,6 +127,21 @@ def stroke_detail(request, pk):
             StrokeTool.objects.filter(stroke=stroke, pk=request.POST.get('st_id')).delete()
             messages.success(request, 'Tool removed.')
 
+        elif action == 'save_sale':
+            contact = _resolve_sale_contact(request.POST, request)
+            if contact:
+                sale, _ = Sale.objects.get_or_create(stroke=stroke, defaults={'contact': contact})
+                sale.contact = contact
+                sale.sold_at = request.POST.get('sold_at') or None
+                sale.price = _decimal(request.POST.get('price'))
+                sale.notes = (request.POST.get('sale_notes') or '').strip()
+                sale.save()
+                messages.success(request, f'Sale recorded to {contact}.')
+
+        elif action == 'remove_sale':
+            Sale.objects.filter(stroke=stroke).delete()
+            messages.success(request, 'Sale removed.')
+
         return redirect('panel:strokes:detail', pk=stroke.pk)
 
     stroke_paints = (
@@ -135,6 +152,7 @@ def stroke_detail(request, pk):
         StrokeTool.objects.filter(stroke=stroke)
         .select_related('tool__brand', 'tool__type').order_by('tool__brand__name')
     )
+    sale = Sale.objects.filter(stroke=stroke).select_related('contact').first()
     return render(request, 'panel/stroke/detail.html', {
         'stroke': stroke,
         'stroke_paints': stroke_paints,
@@ -142,6 +160,8 @@ def stroke_detail(request, pk):
         'papers': Paper.objects.select_related('brand').order_by('verbose_name', 'ref'),
         'paints': Paint.objects.select_related('brand', 'color').order_by('brand__name', 'name'),
         'tools': Tool.objects.select_related('brand', 'type').order_by('brand__name', 'id'),
+        'sale': sale,
+        'contacts': Contact.objects.order_by('last_name', 'first_name'),
         'hero_url': stroke_url(stroke, '1800') or stroke_url(stroke, '600') or stroke_url(stroke, 'original'),
         'image_urls': {
             '100': stroke_url(stroke, '100'),
@@ -180,3 +200,33 @@ def _fk(model, value):
         return model.objects.filter(pk=value).first()
     except Exception:
         return None
+
+
+def _decimal(value):
+    if value in (None, ''):
+        return None
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError):
+        return None
+
+
+def _resolve_sale_contact(post, request):
+    """Return a Contact based on the sale form — existing pick or quick-add."""
+    existing_id = post.get('contact_id')
+    if existing_id:
+        return _fk(Contact, existing_id)
+
+    first_name = (post.get('new_first_name') or '').strip()[:128]
+    if not first_name:
+        messages.error(request, 'Pick a contact or enter a first name for the new buyer.')
+        return None
+
+    contact = Contact.objects.create(
+        first_name=first_name,
+        last_name=(post.get('new_last_name') or '').strip()[:128],
+        email=(post.get('new_email') or '').strip()[:254],
+        phone=(post.get('new_phone') or '').strip()[:64],
+    )
+    messages.success(request, f'New contact created: {contact}.')
+    return contact

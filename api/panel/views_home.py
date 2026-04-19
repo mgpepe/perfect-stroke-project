@@ -7,9 +7,9 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from api.models import (
-    Brand, BrandModel, BrushHairType, Color, Device, File, Paint, Paper,
-    PaperMaterial, PaperSurface, Pigment, Store, Stroke, Tool, ToolShape,
-    ToolSize, ToolType,
+    Brand, BrandModel, BrushHairType, Color, Contact, Device, File, Paint,
+    Paper, PaperMaterial, PaperSurface, Pigment, Sale, Store, Stroke, Tool,
+    ToolShape, ToolSize, ToolType,
 )
 
 
@@ -21,6 +21,11 @@ def home(request):
         'total': Device.objects.count(),
         'online': Device.objects.filter(last_heartbeat_at__gte=online_threshold).count(),
         'failed': Device.objects.filter(last_status='failed').count(),
+    }
+
+    sales_stats = {
+        'contacts': Contact.objects.count(),
+        'sold': Sale.objects.count(),
     }
 
     artifacts = [

@@ -1,0 +1,139 @@
+{% extends 'panel/base.html' %}
+{% block title %}Modification {{ job.id|slice:":8" }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <a href="{% url 'panel:modify:list' %}" class="text-sm text-zinc-500 hover:text-zinc-100 inline-flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back to modifications
+  </a>
+  <div class="flex items-center gap-3 mt-2">
+    <h1 class="text-2xl font-semibold text-zinc-100 font-mono">{{ job.id|slice:":8" }}</h1>
+    <span id="status-pill"></span>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-4">
+    <section class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5">
+      <h2 class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Prompt</h2>
+      <pre class="whitespace-pre-wrap text-sm text-zinc-200 font-sans">{{ job.prompt }}</pre>
+    </section>
+
+    <section class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5">
+      <h2 class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Log</h2>
+      <pre id="log" class="whitespace-pre-wrap text-xs text-zinc-400 font-mono max-h-[400px] overflow-y-auto">{{ job.log|default:"(waiting…)" }}</pre>
+    </section>
+
+    <section id="diff-section" class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 hidden">
+      <h2 class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Changes</h2>
+      <pre id="diff" class="whitespace-pre-wrap text-xs text-zinc-300 font-mono"></pre>
+    </section>
+
+    <section id="error-section" class="bg-red-500/5 ring-1 ring-red-500/30 rounded-lg p-5 hidden">
+      <h2 class="text-xs font-medium text-red-400 uppercase tracking-wider mb-2">Error</h2>
+      <pre id="error" class="whitespace-pre-wrap text-xs text-red-300 font-mono max-h-[300px] overflow-y-auto"></pre>
+    </section>
+  </div>
+
+  <aside class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 h-fit space-y-4 text-sm">
+    <div>
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Repo</div>
+      <div class="font-mono text-zinc-200 mt-0.5">{{ job.repo }}</div>
+    </div>
+    <div>
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Model</div>
+      <div class="font-mono text-zinc-200 mt-0.5">{{ job.model }}</div>
+    </div>
+    <div>
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Phase</div>
+      <div id="phase" class="text-zinc-200 mt-0.5">{{ job.current_phase|default:"—" }}</div>
+    </div>
+    <div>
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Round</div>
+      <div id="round" class="text-zinc-200 mt-0.5">{{ job.round_num }} / {{ job.max_rounds }}</div>
+    </div>
+    <div>
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Cost</div>
+      <div id="cost" class="font-mono text-zinc-200 mt-0.5">${{ job.cost_usd|floatformat:4 }} <span class="text-zinc-500">/ ${{ job.max_cost_usd }}</span></div>
+    </div>
+    <div>
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Commit</div>
+      <div id="commit" class="font-mono text-zinc-200 mt-0.5">
+        {% if job.commit_sha %}
+          <a href="https://github.com/{{ job.repo }}/commit/{{ job.commit_sha }}" target="_blank" class="text-sky-300 hover:text-sky-200">{{ job.commit_sha }}</a>
+        {% else %}—{% endif %}
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function() {
+  var jobId = {{ job.id|safe|stringformat:"'%s'" }};
+  var url = "{% url 'panel:modify:status' job_id=job.id %}";
+
+  function renderPill(status, phase) {
+    var cls, dot, text;
+    if (status === 'succeeded') { cls = 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/30'; dot = 'bg-emerald-400'; text = 'succeeded'; }
+    else if (status === 'failed') { cls = 'bg-red-500/10 text-red-300 ring-red-500/30'; dot = 'bg-red-400'; text = 'failed'; }
+    else if (status === 'cancelled') { cls = 'bg-zinc-500/10 text-zinc-400 ring-zinc-500/30'; dot = 'bg-zinc-500'; text = 'cancelled'; }
+    else { cls = 'bg-amber-500/10 text-amber-300 ring-amber-500/30'; dot = 'bg-amber-400 animate-pulse'; text = status + (phase ? ' · ' + phase : ''); }
+    return '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ' + cls + '">' +
+      '<span class="w-1.5 h-1.5 rounded-full ' + dot + '"></span>' + text + '</span>';
+  }
+
+  var initialStatus = "{{ job.status }}";
+  var initialPhase = "{{ job.current_phase }}";
+  document.getElementById('status-pill').innerHTML = renderPill(initialStatus, initialPhase);
+
+  function poll() {
+    fetch(url, {credentials: 'same-origin'})
+      .then(function(r) { return r.json(); })
+      .then(function(j) {
+        document.getElementById('status-pill').innerHTML = renderPill(j.status, j.current_phase);
+        document.getElementById('phase').textContent = j.current_phase || '—';
+        document.getElementById('round').textContent = j.round_num + ' / ' + j.max_rounds;
+        document.getElementById('cost').innerHTML = '$' + j.cost_usd.toFixed(4) +
+          ' <span class="text-zinc-500">/ $' + j.max_cost_usd + '</span>';
+        if (j.log) {
+          var logEl = document.getElementById('log');
+          var nearBottom = logEl.scrollTop + logEl.clientHeight >= logEl.scrollHeight - 20;
+          logEl.textContent = j.log;
+          if (nearBottom) logEl.scrollTop = logEl.scrollHeight;
+        }
+        if (j.commit_sha) {
+          document.getElementById('commit').innerHTML =
+            '<a href="https://github.com/{{ job.repo }}/commit/' + j.commit_sha + '" target="_blank" class="text-sky-300 hover:text-sky-200">' + j.commit_sha + '</a>';
+        }
+        if (j.diff) {
+          document.getElementById('diff-section').classList.remove('hidden');
+          document.getElementById('diff').textContent = j.diff;
+        }
+        if (j.error) {
+          document.getElementById('error-section').classList.remove('hidden');
+          document.getElementById('error').textContent = j.error;
+        }
+        if (!j.is_terminal) {
+          setTimeout(poll, 2000);
+        }
+      })
+      .catch(function() { setTimeout(poll, 5000); });
+  }
+
+  {% if not job.is_terminal %}
+  setTimeout(poll, 1500);
+  {% else %}
+  // Render terminal state from server-rendered values.
+  {% if job.diff %}
+    document.getElementById('diff-section').classList.remove('hidden');
+    document.getElementById('diff').textContent = {{ job.diff|escapejs|safe|stringformat:"'%s'" }};
+  {% endif %}
+  {% if job.error %}
+    document.getElementById('error-section').classList.remove('hidden');
+    document.getElementById('error').textContent = {{ job.error|escapejs|safe|stringformat:"'%s'" }};
+  {% endif %}
+  {% endif %}
+})();
+</script>
+{% endblock %}

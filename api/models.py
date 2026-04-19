@@ -1,5 +1,6 @@
 import secrets
 import uuid
+from django.conf import settings
 from django.db import models
 
 
@@ -326,3 +327,110 @@ class Device(models.Model):
 
     def __str__(self):
         return self.name or self.id
+
+
+class ModifyJob(models.Model):
+    """A natural-language modification request executed by an AI agent.
+
+    The job owns a workspace (fresh clone of the target repo) and walks
+    through: clone -> edit -> test -> (correct up to N rounds) -> commit ->
+    push. All state is recorded here so the panel can show live progress.
+    """
+
+    STATUS_CHOICES = [
+        ('queued', 'Queued'),
+        ('running', 'Running'),
+        ('testing', 'Testing'),
+        ('succeeded', 'Succeeded'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    PHASE_CHOICES = [
+        ('', '—'),
+        ('cloning', 'Cloning'),
+        ('editing', 'Editing'),
+        ('testing', 'Testing'),
+        ('correcting', 'Correcting'),
+        ('committing', 'Committing'),
+        ('pushing', 'Pushing'),
+    ]
+
+    id = models.CharField(max_length=36, primary_key=True, default=generate_id)
+    prompt = models.TextField()
+    repo = models.CharField(max_length=200, default='mgpepe/perfect-stroke-project-epaper')
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='queued')
+    current_phase = models.CharField(max_length=16, choices=PHASE_CHOICES, blank=True, default='')
+    round_num = models.IntegerField(default=0)
+    max_rounds = models.IntegerField(default=3)
+    cost_usd = models.FloatField(default=0.0)
+    max_cost_usd = models.FloatField(default=200.0)
+    model = models.CharField(max_length=64, default='claude-opus-4-7')
+    commit_sha = models.CharField(max_length=64, blank=True, default='')
+    branch = models.CharField(max_length=64, default='main')
+    diff = models.TextField(blank=True, default='')
+    error = models.TextField(blank=True, default='')
+    log = models.TextField(blank=True, default='')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='modify_jobs',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'modify_jobs'
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['-created_at']), models.Index(fields=['status'])]
+
+    def __str__(self):
+        return f'{self.id[:8]}: {self.prompt[:60]}'
+
+    def append_log(self, line):
+        from django.utils import timezone
+        stamp = timezone.now().strftime('%H:%M:%S')
+        self.log = (self.log or '') + f'[{stamp}] {line}\n'
+        self.save(update_fields=['log', 'updated_at'])
+
+    def is_terminal(self):
+        return self.status in ('succeeded', 'failed', 'cancelled')
+
+
+class Contact(models.Model):
+    """A person (collector / buyer). One contact can hold many sales."""
+    id = models.CharField(max_length=36, primary_key=True, default=generate_id)
+    first_name = models.CharField(max_length=128)
+    last_name = models.CharField(max_length=128, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=64, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'contacts'
+        ordering = ['last_name', 'first_name']
+
+    def __str__(self):
+        full = f'{self.first_name} {self.last_name}'.strip()
+        return full or self.email or str(self.id)
+
+
+class Sale(models.Model):
+    """A single stroke purchase. OneToOne to Stroke — one sale per stroke."""
+    id = models.CharField(max_length=36, primary_key=True, default=generate_id)
+    contact = models.ForeignKey(Contact, on_delete=models.PROTECT, related_name='sales')
+    stroke = models.OneToOneField(Stroke, on_delete=models.CASCADE, related_name='sale')
+    sold_at = models.DateField(null=True, blank=True)
+    price = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'sales'
+        ordering = ['-sold_at', '-created_at']
+
+    def __str__(self):
+        return f'{self.stroke_id} → {self.contact}'

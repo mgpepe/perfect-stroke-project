@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Brand, BrandModel, Color, File, Store, PaperMaterial, PaperSurface,
     ToolType, ToolShape, ToolSize, BrushHairType, Pigment, PigmentPaint,
-    Paint, Paper, Tool, Stroke, StrokePaint, StrokeTool,
+    Paint, Paper, Tool, Stroke, StrokePaint, StrokeTool, Contact, Sale,
 )
 
 admin.site.register(Brand)
@@ -24,6 +24,8 @@ admin.site.register(Tool)
 admin.site.register(Stroke)
 admin.site.register(StrokePaint)
 admin.site.register(StrokeTool)
+admin.site.register(Contact)
+admin.site.register(Sale)
 
 
 # Device is managed through the custom dashboard at /devices/, not Django admin.
