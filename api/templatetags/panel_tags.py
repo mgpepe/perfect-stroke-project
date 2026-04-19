@@ -27,7 +27,9 @@ def paper_label(paper):
         parts.append(paper.brand_model.name)
     if paper.gsm is not None:
         gsm = paper.gsm
-        parts.append(f'{gsm:g}GSM' if gsm == gsm.to_integral() else f'{gsm}GSM')
+        if hasattr(gsm, 'to_integral') and gsm == gsm.to_integral():
+            gsm = int(gsm)
+        parts.append(f'{gsm}GSM')
     if getattr(paper, 'paper_surface_id', None):
         parts.append(paper.paper_surface.name)
     if parts:
