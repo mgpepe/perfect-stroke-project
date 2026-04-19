@@ -40,7 +40,11 @@
     </div>
     <div class="p-2">
       <div class="text-xs font-medium text-zinc-200 truncate">{{ s.title|default:"Untitled" }}</div>
-      <div class="text-[10px] font-mono text-zinc-500 truncate">{{ s.id|slice:":8" }}</div>
+      {% if s.is_sold %}
+        <div class="text-[11px] font-bold text-emerald-400">Sold.</div>
+      {% else %}
+        <div class="text-[11px] text-zinc-500">Not sold yet.</div>
+      {% endif %}
     </div>
   </a>
   {% endfor %}

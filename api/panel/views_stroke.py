@@ -2,7 +2,7 @@
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from decimal import Decimal, InvalidOperation
@@ -25,6 +25,7 @@ def _paginate(qs, page):
 def stroke_list(request):
     qs = (
         Stroke.objects.select_related('image_600', 'paper')
+        .annotate(is_sold=Exists(Sale.objects.filter(stroke=OuterRef('pk'))))
         .order_by('order_id', 'id')
     )
     query = request.GET.get('q', '').strip()
