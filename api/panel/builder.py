@@ -13,6 +13,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import threading
 import time
 import traceback
@@ -63,9 +64,10 @@ def _blocked(relpath: str) -> bool:
 
 _BASH_ALLOW_PREFIXES = (
     'git status', 'git diff', 'git log', 'git show',
-    'python manage.py check',
-    'python -c ',
-    'python -m py_compile ',
+    'python manage.py check', 'python3 manage.py check',
+    'python -c ', 'python3 -c ',
+    'python -m py_compile ', 'python3 -m py_compile ',
+    'python -m compileall ', 'python3 -m compileall ',
     'ruff check',
     'ruff format --check',
     'ls ', 'ls',
@@ -309,9 +311,10 @@ def _run_tests(repo_dir: Path, job: ModifyJob) -> tuple[bool, str]:
     """Run quick verifications on the edited workspace. Returns (ok, detail)."""
     job.append_log('running post-edit tests…')
 
-    # 1. Byte-compile every .py
+    # 1. Byte-compile every .py (use sys.executable — same interpreter
+    #    as the Django process, no PATH assumptions).
     res = _run(
-        ['python', '-m', 'compileall', '-q', '-f', '.'],
+        [sys.executable, '-m', 'compileall', '-q', '-f', '.'],
         cwd=repo_dir,
     )
     if res.returncode != 0:
