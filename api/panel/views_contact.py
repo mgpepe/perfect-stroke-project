@@ -62,7 +62,7 @@ def contact_detail(request, pk):
     sales = list(
         contact.sales
         .select_related('stroke')
-        .order_by('-sold_at', '-created_at')
+        .order_by('stroke__order_id')
     )
     for s in sales:
         s.thumb_url = stroke_url(s.stroke, '600')
