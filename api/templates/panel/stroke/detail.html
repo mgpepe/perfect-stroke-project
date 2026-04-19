@@ -46,51 +46,6 @@
       {% if image_urls.original %}<div class="flex items-center justify-between"><span>original</span><a href="{{ image_urls.original }}" target="_blank" class="text-zinc-500 hover:text-zinc-200 font-mono">view ↗</a></div>{% endif %}
     </div>
     {% endif %}
-  </div>
-
-  <!-- Middle+Right: fields and relations -->
-  <div class="lg:col-span-2 space-y-6">
-    <form method="post" class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-6 space-y-5">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="save">
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Order #</label>
-          <input type="number" name="order_id" value="{{ stroke.order_id }}"
-                 class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Paper</label>
-          <select name="paper" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
-            <option value="">—</option>
-            {% for p in papers %}<option value="{{ p.pk }}" {% if stroke.paper_id == p.pk %}selected{% endif %}>{{ p|paper_label }}</option>{% endfor %}
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Title</label>
-        <input type="text" name="title" value="{{ stroke.title }}"
-               class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
-      </div>
-
-      <div>
-        <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Description</label>
-        <textarea name="description" rows="3"
-                  class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">{{ stroke.description }}</textarea>
-      </div>
-
-      <div>
-        <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Tags</label>
-        <input type="text" name="tags" value="{{ stroke.tags }}"
-               class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
-      </div>
-
-      <div class="flex justify-end">
-        <button type="submit" class="px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">Save</button>
-      </div>
-    </form>
 
     <!-- Sale -->
     <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-6">
@@ -186,6 +141,51 @@
         </form>
       {% endif %}
     </div>
+  </div>
+
+  <!-- Middle+Right: fields and relations -->
+  <div class="lg:col-span-2 space-y-6">
+    <form method="post" class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-6 space-y-5">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save">
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Order #</label>
+          <input type="number" name="order_id" value="{{ stroke.order_id }}"
+                 class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Paper</label>
+          <select name="paper" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+            <option value="">—</option>
+            {% for p in papers %}<option value="{{ p.pk }}" {% if stroke.paper_id == p.pk %}selected{% endif %}>{{ p|paper_label }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Title</label>
+        <input type="text" name="title" value="{{ stroke.title }}"
+               class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Description</label>
+        <textarea name="description" rows="3"
+                  class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">{{ stroke.description }}</textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Tags</label>
+        <input type="text" name="tags" value="{{ stroke.tags }}"
+               class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">Save</button>
+      </div>
+    </form>
 
     <!-- Paints -->
     <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-6">
