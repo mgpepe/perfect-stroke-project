@@ -4,7 +4,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('panel/', include(('api.urls_panel', 'panel'), namespace='panel')),
+    path('panel/', include(('api.panel.urls', 'panel'), namespace='panel')),
     path('api/', include('api.urls')),
     path('api/', include('authentication.urls')),
     # Swagger

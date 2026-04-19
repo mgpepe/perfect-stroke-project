@@ -1,0 +1,35 @@
+{% extends 'panel/base.html' %}
+{% block title %}{% if is_new %}New {{ panel.singular }}{% else %}{{ instance }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <a href="{% url 'panel:generic:'|add:panel.slug|add:':list' %}"
+     class="text-sm text-zinc-500 hover:text-zinc-100 inline-flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back to {{ panel.plural|lower }}
+  </a>
+  <h1 class="text-2xl font-semibold text-zinc-100 mt-2 mb-6">
+    {% if is_new %}New {{ panel.singular|lower }}{% else %}Edit {{ panel.singular|lower }}{% endif %}
+  </h1>
+
+  <form method="post" class="bg-zinc-900 rounded-lg ring-1 ring-zinc-800 p-6 space-y-5">
+    {% csrf_token %}
+    {% for f in fields %}
+      {% include 'panel/generic/_field.html' with f=f %}
+    {% endfor %}
+
+    <div class="flex items-center justify-between pt-2">
+      <div>
+        {% if not is_new %}
+          <a href="{% url 'panel:generic:'|add:panel.slug|add:':delete' pk=instance.pk %}"
+             class="text-sm text-red-400 hover:text-red-300">Delete</a>
+        {% endif %}
+      </div>
+      <button type="submit"
+              class="px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">
+        {% if is_new %}Create{% else %}Save{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

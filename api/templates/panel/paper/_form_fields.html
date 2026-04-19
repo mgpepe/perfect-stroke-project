@@ -1,0 +1,90 @@
+{# Paper form fields. Expects `paper` in context. #}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="md:col-span-2">
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Display name</label>
+    <input type="text" name="verbose_name" value="{{ paper.verbose_name|default:'' }}"
+           placeholder="e.g. Arches 300gsm CP 56×76"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Brand</label>
+    <select name="brand" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      <option value="">—</option>
+      {% for b in brands %}<option value="{{ b.pk }}" {% if paper.brand_id == b.pk %}selected{% endif %}>{{ b.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Brand model</label>
+    <select name="brand_model" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      <option value="">—</option>
+      {% for bm in brand_models %}<option value="{{ bm.pk }}" {% if paper.brand_model_id == bm.pk %}selected{% endif %}>{{ bm.brand.name }} — {{ bm.name }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Color</label>
+    <select name="color" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      <option value="">—</option>
+      {% for c in colors %}<option value="{{ c.pk }}" {% if paper.color_id == c.pk %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">GSM</label>
+    <input type="number" step="0.01" name="gsm" value="{{ paper.gsm|default:'' }}"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Material</label>
+    <select name="paper_material" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      <option value="">—</option>
+      {% for m in paper_materials %}<option value="{{ m.pk }}" {% if paper.paper_material_id == m.pk %}selected{% endif %}>{{ m.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Surface</label>
+    <select name="paper_surface" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      <option value="">—</option>
+      {% for s in paper_surfaces %}<option value="{{ s.pk }}" {% if paper.paper_surface_id == s.pk %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Ref</label>
+    <input type="text" name="ref" value="{{ paper.ref|default:'' }}"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Original size</label>
+    <input type="text" name="original_size" value="{{ paper.original_size|default:'' }}"
+           placeholder="e.g. 56x76cm"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Store</label>
+    <select name="store" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      <option value="">—</option>
+      {% for s in stores %}<option value="{{ s.pk }}" {% if paper.store_id == s.pk %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Price</label>
+    <input type="number" step="0.01" name="price" value="{{ paper.price|default:'' }}"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+  </div>
+</div>
+
+<div>
+  <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Image</label>
+  {% if paper.image %}
+    <div class="flex items-start gap-3 mb-2">
+      <img src="{{ paper.image.url_path }}" class="h-20 w-20 rounded object-cover ring-1 ring-zinc-700">
+      <div class="text-xs text-zinc-500 font-mono truncate">{{ paper.image.original_file_name }}</div>
+    </div>
+  {% endif %}
+  <input type="file" name="image" accept="image/*"
+         class="block w-full text-xs text-zinc-300 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-zinc-800 file:text-zinc-100 hover:file:bg-zinc-700">
+  <p class="mt-1 text-xs text-zinc-500">Uploads to R2. Replaces existing image if set.</p>
+</div>

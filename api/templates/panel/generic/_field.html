@@ -1,0 +1,61 @@
+{# Render a single field from the field-context dict `f`. #}
+<div>
+  <label for="f-{{ f.name }}" class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">
+    {{ f.label }}{% if f.required %} <span class="text-red-400">*</span>{% endif %}
+  </label>
+
+  {% if f.kind == 'textarea' %}
+    <textarea name="{{ f.name }}" id="f-{{ f.name }}" rows="4"
+              {% if f.required %}required{% endif %}
+              placeholder="{{ f.placeholder }}"
+              class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">{{ f.value }}</textarea>
+
+  {% elif f.kind == 'checkbox' %}
+    <label class="inline-flex items-center gap-2 text-sm text-zinc-200">
+      <input type="checkbox" name="{{ f.name }}" id="f-{{ f.name }}" value="1"
+             {% if f.value %}checked{% endif %}
+             class="rounded bg-zinc-950 border-zinc-700 text-zinc-100 focus:ring-zinc-500">
+      <span>{{ f.label }}</span>
+    </label>
+
+  {% elif f.kind == 'fk' or f.kind == 'select' %}
+    <select name="{{ f.name }}" id="f-{{ f.name }}"
+            {% if f.required %}required{% endif %}
+            class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+      {% if not f.required %}<option value="">—</option>{% endif %}
+      {% for value, label in f.choices %}
+        <option value="{{ value }}" {% if value|stringformat:"s" == f.value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+  {% elif f.kind == 'number' %}
+    <input type="number" name="{{ f.name }}" id="f-{{ f.name }}" value="{{ f.value }}"
+           {% if f.required %}required{% endif %}
+           placeholder="{{ f.placeholder }}"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+
+  {% elif f.kind == 'url' %}
+    <input type="url" name="{{ f.name }}" id="f-{{ f.name }}" value="{{ f.value }}"
+           placeholder="{{ f.placeholder|default:'https://…' }}"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+
+  {% elif f.kind == 'hex' %}
+    <div class="flex items-center gap-2">
+      <input type="color" value="{{ f.value|default:'#000000' }}"
+             onchange="document.getElementById('f-{{ f.name }}').value = this.value"
+             class="h-10 w-12 rounded border border-zinc-700 bg-zinc-950 cursor-pointer">
+      <input type="text" name="{{ f.name }}" id="f-{{ f.name }}" value="{{ f.value }}"
+             placeholder="#rrggbb" maxlength="7"
+             pattern="^#[0-9a-fA-F]{6}$"
+             class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+    </div>
+
+  {% else %}
+    <input type="text" name="{{ f.name }}" id="f-{{ f.name }}" value="{{ f.value }}"
+           {% if f.required %}required{% endif %}
+           placeholder="{{ f.placeholder }}"
+           class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+  {% endif %}
+
+  {% if f.help %}<p class="mt-1 text-xs text-zinc-500">{{ f.help }}</p>{% endif %}
+</div>

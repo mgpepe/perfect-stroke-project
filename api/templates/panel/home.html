@@ -7,35 +7,45 @@
   <p class="text-sm text-zinc-400 mt-1">Perfect Stroke operations panel.</p>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-  <a href="{% url 'panel:devices:list' %}" class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 hover:ring-zinc-700 transition-colors">
+<h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Operations</h2>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  <a href="{% url 'panel:devices:list' %}" class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 hover:ring-zinc-600 transition-colors">
     <div class="text-xs uppercase tracking-wider text-zinc-500">Devices</div>
-    <div class="mt-2 text-3xl font-semibold text-zinc-100">{{ stats.devices_total }}</div>
+    <div class="mt-2 text-3xl font-semibold text-zinc-100">{{ device_stats.total }}</div>
     <div class="mt-1 text-xs text-zinc-500">
-      <span class="text-emerald-400">{{ stats.devices_online }}</span> online ·
-      <span class="text-red-400">{{ stats.devices_failed }}</span> failed
+      <span class="text-emerald-400">{{ device_stats.online }}</span> online ·
+      <span class="text-red-400">{{ device_stats.failed }}</span> failed
     </div>
   </a>
-
-  <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 opacity-60">
-    <div class="text-xs uppercase tracking-wider text-zinc-500">Strokes</div>
-    <div class="mt-2 text-3xl font-semibold text-zinc-100">{{ stats.strokes_total }}</div>
-    <div class="mt-1 text-xs text-zinc-500">{{ stats.strokes_with_images }} with images</div>
-  </div>
-
-  <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 opacity-60">
-    <div class="text-xs uppercase tracking-wider text-zinc-500">Paints</div>
-    <div class="mt-2 text-3xl font-semibold text-zinc-100">{{ stats.paints_total }}</div>
-  </div>
-
-  <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 opacity-60">
-    <div class="text-xs uppercase tracking-wider text-zinc-500">Papers</div>
-    <div class="mt-2 text-3xl font-semibold text-zinc-100">{{ stats.papers_total }}</div>
-  </div>
 </div>
 
-<div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5">
-  <h2 class="text-sm font-semibold text-zinc-300 mb-3">Roadmap</h2>
-  <p class="text-sm text-zinc-400">Sections above migrate here from the stock Django admin one at a time. Devices is first. Strokes, Paints, Papers, Tools will follow.</p>
+<h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Artifacts</h2>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  {% for a in artifacts %}
+  <a href="{% url a.url_name %}" class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 hover:ring-zinc-600 transition-colors">
+    <div class="text-xs uppercase tracking-wider text-zinc-500">{{ a.label }}</div>
+    <div class="mt-2 text-3xl font-semibold text-zinc-100">{{ a.count }}</div>
+    <div class="mt-1 text-xs text-zinc-500">{{ a.sub|default:"" }}</div>
+  </a>
+  {% endfor %}
+</div>
+
+<h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Taxonomy</h2>
+<div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg divide-y divide-zinc-800 mb-8">
+  {% for label, count, slug in taxonomy %}
+    <a href="/panel/{{ slug }}/" class="flex items-center justify-between px-5 py-3 hover:bg-zinc-800/40 transition-colors">
+      <span class="text-sm text-zinc-200">{{ label }}</span>
+      <span class="text-sm font-mono text-zinc-500">{{ count }}</span>
+    </a>
+  {% endfor %}
+</div>
+
+<h2 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Storage</h2>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <a href="{% url 'panel:generic:files:list' %}" class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-5 hover:ring-zinc-600 transition-colors">
+    <div class="text-xs uppercase tracking-wider text-zinc-500">Files (R2)</div>
+    <div class="mt-2 text-3xl font-semibold text-zinc-100">{{ files_total }}</div>
+    <div class="mt-1 text-xs text-zinc-500">Images on Cloudflare R2</div>
+  </a>
 </div>
 {% endblock %}

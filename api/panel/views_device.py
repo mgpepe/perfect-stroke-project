@@ -1,37 +1,12 @@
-"""Custom admin panel at /panel/.
-
-Progressively replaces the stock Django admin. Devices is the first module;
-Strokes, Paints, Papers, Tools will migrate here later. Staff-only, reusing
-/admin/login/ for auth.
-"""
-
-from datetime import timedelta
+"""Device CRUD — ported from the old views_panel.py."""
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 
-from . import github_refs
-from .models import Device, Stroke, Paint, Paper
+from api import github_refs
+from api.models import Device
 
-
-@staff_member_required(login_url='/admin/login/')
-def home(request):
-    online_threshold = timezone.now() - timedelta(minutes=15)
-    stats = {
-        'devices_total': Device.objects.count(),
-        'devices_online': Device.objects.filter(last_heartbeat_at__gte=online_threshold).count(),
-        'devices_failed': Device.objects.filter(last_status='failed').count(),
-        'strokes_total': Stroke.objects.count(),
-        'strokes_with_images': Stroke.objects.exclude(image_url='').count(),
-        'paints_total': Paint.objects.count(),
-        'papers_total': Paper.objects.count(),
-    }
-    return render(request, 'panel/home.html', {'stats': stats})
-
-
-# ─── Devices ─────────────────────────────────────────────────────
 
 @staff_member_required(login_url='/admin/login/')
 def device_list(request):

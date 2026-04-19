@@ -1,0 +1,61 @@
+{% extends 'panel/base.html' %}
+{% block title %}New stroke{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <a href="{% url 'panel:strokes:list' %}" class="text-sm text-zinc-500 hover:text-zinc-100 inline-flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back to strokes
+  </a>
+  <h1 class="text-2xl font-semibold text-zinc-100 mt-2 mb-6">New stroke</h1>
+
+  <form method="post" enctype="multipart/form-data" class="bg-zinc-900 rounded-lg ring-1 ring-zinc-800 p-6 space-y-5">
+    {% csrf_token %}
+
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Order #</label>
+      <input type="number" name="order_id" value="0"
+             class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Title</label>
+      <input type="text" name="title"
+             class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Description</label>
+      <textarea name="description" rows="3"
+                class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Tags</label>
+      <input type="text" name="tags" placeholder="comma, separated"
+             class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Paper</label>
+      <select name="paper" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+        <option value="">—</option>
+        {% for p in papers %}<option value="{{ p.pk }}">{{ p }}</option>{% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Image</label>
+      <input type="file" name="image" accept="image/*"
+             class="block w-full text-sm text-zinc-300 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-zinc-800 file:text-zinc-100 hover:file:bg-zinc-700">
+      <p class="mt-1 text-xs text-zinc-500">Uploads to R2 at 5 sizes (100, 600, 1800, 2500, original).</p>
+    </div>
+
+    <div class="flex justify-end pt-2">
+      <button type="submit" class="px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">
+        Create stroke
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

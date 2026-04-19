@@ -1,0 +1,65 @@
+{% extends 'panel/base.html' %}
+{% block title %}Strokes{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6 gap-4">
+  <div>
+    <h1 class="text-2xl font-semibold text-zinc-100">Strokes</h1>
+    <p class="text-sm text-zinc-400 mt-1">Core brushstroke collection — image, paints, tools, paper.</p>
+  </div>
+  <a href="{% url 'panel:strokes:new' %}"
+     class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white shrink-0">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+    New stroke
+  </a>
+</div>
+
+<form method="get" class="mb-4">
+  <div class="relative max-w-md">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search by title, tag, or ID…"
+           class="block w-full rounded-md bg-zinc-900 border border-zinc-800 pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+    <svg class="absolute left-2.5 top-2.5 w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+  </div>
+</form>
+
+{% if strokes %}
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+  {% for s in strokes %}
+  <a href="{% url 'panel:strokes:detail' pk=s.pk %}"
+     class="group bg-zinc-900 ring-1 ring-zinc-800 rounded-lg overflow-hidden hover:ring-zinc-600 transition-colors">
+    <div class="aspect-square bg-zinc-800 relative">
+      {% if s.image_600 %}
+        <img src="{{ s.image_600.url_path }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+      {% elif s.image_url %}
+        <img src="{{ s.image_url }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+      {% else %}
+        <div class="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">no image</div>
+      {% endif %}
+      <div class="absolute top-1.5 left-1.5 bg-black/60 backdrop-blur-sm text-zinc-100 text-[10px] font-mono px-1.5 py-0.5 rounded">#{{ s.order_id }}</div>
+    </div>
+    <div class="p-2">
+      <div class="text-xs font-medium text-zinc-200 truncate">{{ s.title|default:"Untitled" }}</div>
+      <div class="text-[10px] font-mono text-zinc-500 truncate">{{ s.id|slice:":8" }}</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="mt-6 flex items-center justify-between text-sm text-zinc-400">
+  <span>{{ strokes|length }} of {{ total }}</span>
+  <div class="flex items-center gap-2">
+    {% if has_prev %}
+      <a href="?q={{ query }}&page={{ page|add:'-1' }}" class="px-3 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200">← Prev</a>
+    {% endif %}
+    <span class="text-zinc-500">Page {{ page }}</span>
+    {% if has_next %}
+      <a href="?q={{ query }}&page={{ page|add:'1' }}" class="px-3 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200">Next →</a>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="bg-zinc-900 rounded-lg ring-1 ring-zinc-800 p-10 text-center">
+  <p class="text-zinc-400">{% if query %}No strokes match "{{ query }}".{% else %}No strokes yet.{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

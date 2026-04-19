@@ -1,0 +1,18 @@
+{% extends 'panel/base.html' %}
+{% block title %}New tool{% endblock %}
+{% block content %}
+<div class="max-w-3xl">
+  <a href="{% url 'panel:tools:list' %}" class="text-sm text-zinc-500 hover:text-zinc-100 inline-flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back to tools
+  </a>
+  <h1 class="text-2xl font-semibold text-zinc-100 mt-2 mb-6">New tool</h1>
+  <form method="post" enctype="multipart/form-data" class="bg-zinc-900 rounded-lg ring-1 ring-zinc-800 p-6 space-y-5">
+    {% csrf_token %}
+    {% include 'panel/tool/_form_fields.html' %}
+    <div class="flex justify-end pt-2">
+      <button type="submit" class="px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">Create tool</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

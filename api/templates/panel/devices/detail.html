@@ -53,16 +53,9 @@
       </div>
 
       {% if gh_enabled %}
-      <select id="ref-picker"
-              class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 font-mono focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none mb-2">
-        <option value="">— pick from GitHub —</option>
-        {% if gh_commits %}
-          <optgroup label="Recent commits on main">
-            {% for c in gh_commits %}
-              <option value="{{ c.short_sha }}">{{ c.short_sha }}  {{ c.subject|truncatechars:72 }}</option>
-            {% endfor %}
-          </optgroup>
-        {% endif %}
+      <select name="desired_git_ref" id="desired_git_ref" required
+              class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 font-mono focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+        <option value="{{ device.desired_git_ref }}" selected>{{ device.desired_git_ref }} — current</option>
         {% if gh_branches %}
           <optgroup label="Branches">
             {% for b in gh_branches %}
@@ -77,17 +70,21 @@
             {% endfor %}
           </optgroup>
         {% endif %}
+        {% if gh_commits %}
+          <optgroup label="Recent commits on main">
+            {% for c in gh_commits %}
+              <option value="{{ c.short_sha }}">{{ c.short_sha }}  {{ c.subject|truncatechars:72 }}</option>
+            {% endfor %}
+          </optgroup>
+        {% endif %}
       </select>
+      <p class="mt-1 text-xs text-zinc-500">Pi polls every 5 min and rolls forward/back to the selected ref.</p>
       {% else %}
-      <div class="mb-2 text-xs text-amber-300/80 bg-amber-500/10 ring-1 ring-amber-500/30 rounded px-3 py-2">
-        Dropdown unavailable — <code class="font-mono">GITHUB_TOKEN</code> is not configured on the server. Free-text input still works.
-      </div>
-      {% endif %}
-
-      <input type="text" name="desired_git_ref" id="desired_git_ref" value="{{ device.desired_git_ref }}"
+      <input type="text" name="desired_git_ref" id="desired_git_ref" value="{{ device.desired_git_ref }}" required
              class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none"
              placeholder="branch, tag, or short SHA">
-      <p class="mt-1 text-xs text-zinc-500">Pick from the dropdown above or type any ref. Pi polls every 5 min and rolls forward/back.</p>
+      <p class="mt-1 text-xs text-amber-300/80">Dropdown unavailable — <code class="font-mono">GITHUB_TOKEN</code> not configured. Free text only.</p>
+      {% endif %}
     </div>
 
     <div>
@@ -155,14 +152,5 @@ function toggleToken() {
   if (input.type === 'password') { input.type = 'text'; btn.textContent = 'hide'; }
   else { input.type = 'password'; btn.textContent = 'show'; }
 }
-(function(){
-  var picker = document.getElementById('ref-picker');
-  var input  = document.getElementById('desired_git_ref');
-  if (picker && input) {
-    picker.addEventListener('change', function() {
-      if (this.value) input.value = this.value;
-    });
-  }
-})();
 </script>
 {% endblock %}

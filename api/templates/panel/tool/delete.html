@@ -1,0 +1,16 @@
+{% extends 'panel/base.html' %}
+{% block title %}Delete tool{% endblock %}
+{% block content %}
+<div class="max-w-lg">
+  <h1 class="text-2xl font-semibold text-zinc-100 mb-4">Delete tool?</h1>
+  <div class="bg-zinc-900 ring-1 ring-red-500/30 rounded-lg p-6">
+    <p class="mt-2 text-lg font-semibold text-zinc-100">{{ tool.brand.name|default:"Unbranded" }} · {{ tool.type.name|default:"tool" }}</p>
+    <p class="mt-4 text-sm text-red-300">Stroke→Tool links are removed.</p>
+    <form method="post" class="mt-6 flex items-center justify-end gap-3">
+      {% csrf_token %}
+      <a href="{% url 'panel:tools:detail' pk=tool.pk %}" class="px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100">Cancel</a>
+      <button type="submit" class="px-4 py-2 bg-red-500/90 text-white text-sm font-medium rounded-md hover:bg-red-500">Delete</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
