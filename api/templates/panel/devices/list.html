@@ -1,0 +1,71 @@
+{% extends 'panel/base.html' %}
+{% block title %}Devices{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-semibold text-zinc-100">Devices</h1>
+    <p class="text-sm text-zinc-400 mt-1">Remote displays polling for their desired code version.</p>
+  </div>
+  <a href="{% url 'panel:devices:new' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+    New device
+  </a>
+</div>
+
+{% if devices %}
+<div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg overflow-hidden">
+  <table class="min-w-full divide-y divide-zinc-800">
+    <thead class="bg-zinc-900/80">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">ID</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">Name</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">Desired ref</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">Reported ref</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">Status</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">Last heartbeat</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-zinc-800">
+      {% for d in devices %}
+      <tr class="hover:bg-zinc-800/50 cursor-pointer transition-colors" onclick="window.location='{% url 'panel:devices:detail' device_id=d.id %}'">
+        <td class="px-6 py-4 text-sm font-mono text-zinc-100">{{ d.id }}</td>
+        <td class="px-6 py-4 text-sm text-zinc-300">{{ d.name|default:"—" }}</td>
+        <td class="px-6 py-4 text-sm font-mono text-zinc-300">{{ d.desired_git_ref }}</td>
+        <td class="px-6 py-4 text-sm font-mono text-zinc-500">{{ d.last_reported_ref|default:"—" }}</td>
+        <td class="px-6 py-4 text-sm">
+          {% if d.last_status == 'ok' %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ok
+            </span>
+          {% elif d.last_status == 'updating' %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300 ring-1 ring-inset ring-amber-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> updating
+            </span>
+          {% elif d.last_status == 'failed' %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-300 ring-1 ring-inset ring-red-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> failed
+            </span>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-500/10 text-zinc-400 ring-1 ring-inset ring-zinc-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span> unknown
+            </span>
+          {% endif %}
+        </td>
+        <td class="px-6 py-4 text-sm text-zinc-400">
+          {% if d.last_heartbeat_at %}{{ d.last_heartbeat_at|timesince }} ago{% else %}never{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="bg-zinc-900 rounded-lg ring-1 ring-zinc-800 p-10 text-center">
+  <p class="text-zinc-400">No devices yet.</p>
+  <a href="{% url 'panel:devices:new' %}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 text-zinc-900 text-sm font-medium rounded-md hover:bg-white">
+    Add your first device
+  </a>
+</div>
+{% endif %}
+{% endblock %}
