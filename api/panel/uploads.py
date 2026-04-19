@@ -27,7 +27,22 @@ def upload_stroke_image_set(uploaded_file, *, path: str = 'stroke_photos', file_
 
 
 def attach_stroke_image_set(stroke, file_set: dict) -> None:
-    """Apply an uploaded image set to a Stroke and save."""
+    """Apply an uploaded image set to a Stroke and save.
+
+    Creates a new Image row owning the variants, links it as
+    stroke.image, and also updates the legacy per-size FKs so the
+    public API serializers (which still read them) stay in sync.
+    """
+    from api.models import Image
+
+    image = Image.objects.create(
+        size_100=file_set['file_100'],
+        size_600=file_set['file_600'],
+        size_1800=file_set['file_1800'],
+        size_2500=file_set['file_2500'],
+        size_original=file_set['file_original'],
+    )
+    stroke.image = image
     stroke.image_100 = file_set['file_100']
     stroke.image_600 = file_set['file_600']
     stroke.image_1800 = file_set['file_1800']

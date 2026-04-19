@@ -24,7 +24,8 @@ def _paginate(qs, page):
 @staff_member_required(login_url='/admin/login/')
 def stroke_list(request):
     qs = (
-        Stroke.objects.select_related('image_600', 'paper')
+        Stroke.objects
+        .select_related('image__size_600', 'image_600', 'paper')
         .annotate(is_sold=Exists(Sale.objects.filter(stroke=OuterRef('pk'))))
         .order_by('order_id', 'id')
     )
@@ -83,7 +84,10 @@ def stroke_new(request):
 def stroke_detail(request, pk):
     stroke = get_object_or_404(
         Stroke.objects.select_related(
-            'paper', 'image_600', 'image_1800', 'image_2500', 'image_original'
+            'paper',
+            'image', 'image__size_100', 'image__size_600',
+            'image__size_1800', 'image__size_2500', 'image__size_original',
+            'image_600', 'image_1800', 'image_2500', 'image_original',
         ),
         pk=pk,
     )

@@ -253,6 +253,42 @@ class Tool(models.Model):
         db_table = 'tools'
 
 
+class Image(models.Model):
+    """A single logical image with all its size variants on R2.
+
+    Each size is a File row. Sizes missing from R2 leave their FK null.
+    Strokes (and later paints/papers/tools) own an Image via their
+    own FK, so the variants stay grouped and deletable as a unit.
+    """
+    SIZES = ('100', '600', '1800', '2500', 'original')
+
+    id = models.CharField(max_length=36, primary_key=True, default=generate_id)
+    size_100 = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='image_100')
+    size_600 = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='image_600')
+    size_1800 = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='image_1800')
+    size_2500 = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='image_2500')
+    size_original = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='image_original')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'images'
+
+    def __str__(self):
+        for size in self.SIZES:
+            f = getattr(self, f'size_{size}')
+            if f:
+                return f'Image {self.pk[:8]} ({f.original_file_name})'
+        return f'Image {self.pk[:8]} (empty)'
+
+    def file_for(self, size: str):
+        return getattr(self, f'size_{size}', None)
+
+    def url_for(self, size: str) -> str:
+        f = self.file_for(size)
+        return f.url_path if f else ''
+
+
 class Stroke(models.Model):
     id = models.CharField(max_length=36, primary_key=True, default=generate_id)
     order_id = models.IntegerField(default=0)
@@ -261,6 +297,11 @@ class Stroke(models.Model):
     paper = models.ForeignKey(Paper, on_delete=models.SET_NULL, null=True, blank=True, related_name='strokes')
     image_url = models.URLField(max_length=1000, blank=True)
     tags = models.CharField(max_length=500, blank=True)
+    image = models.OneToOneField(
+        Image, on_delete=models.SET_NULL, null=True, blank=True, related_name='stroke',
+    )
+    # Legacy per-size FKs, kept for API/serializer compatibility. Populated
+    # in lockstep with `image` until the public API moves to Image.
     image_100 = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='stroke_img100')
     image_600 = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='stroke_img600')
     image_1800 = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='stroke_img1800')

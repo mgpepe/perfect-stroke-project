@@ -53,11 +53,17 @@ _MAP_SIZE_FALLBACK = {
 def stroke_url(stroke, size: str) -> str:
     """Best-effort R2 URL for a stroke at a given size.
 
-    Uses only the File FKs on the Stroke — the legacy r2_image_map
-    data has been migrated in. Falls through nearby sizes if the
-    requested one isn't linked, then to stroke.image_url for
-    'original' as a last resort.
+    Reads from stroke.image (the new Image row owning all variants).
+    Falls back to the legacy per-size FKs for rows not yet migrated,
+    then to stroke.image_url for 'original'.
     """
+    image = getattr(stroke, 'image', None)
+    if image:
+        for candidate in _MAP_SIZE_FALLBACK.get(size, [size]):
+            f = image.file_for(candidate)
+            if f and f.url_path:
+                return absolute_url(f.url_path)
+
     for candidate in _MAP_SIZE_FALLBACK.get(size, [size]):
         fk = getattr(stroke, f'image_{candidate}', None)
         if fk and getattr(fk, 'url_path', ''):
