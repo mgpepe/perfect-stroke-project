@@ -176,19 +176,10 @@
       {% csrf_token %}
       <input type="hidden" name="action" value="save">
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Order #</label>
-          <input type="number" name="order_id" value="{{ stroke.order_id }}"
-                 class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Paper</label>
-          <select name="paper" class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
-            <option value="">—</option>
-            {% for p in papers %}<option value="{{ p.pk }}" {% if stroke.paper_id == p.pk %}selected{% endif %}>{{ p|paper_label }}</option>{% endfor %}
-          </select>
-        </div>
+      <div>
+        <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Order #</label>
+        <input type="number" name="order_id" value="{{ stroke.order_id }}"
+               class="block w-full rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm font-mono text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
       </div>
 
       <div>
@@ -279,6 +270,37 @@
           {% for t in tools %}<option value="{{ t.pk }}">{{ t.brand.name|default:"?" }} · {{ t.type.name|default:"tool" }} · {{ t.id|slice:":8" }}</option>{% endfor %}
         </select>
         <button type="submit" class="px-3 py-2 bg-zinc-800 text-zinc-100 text-sm rounded hover:bg-zinc-700">Add</button>
+      </form>
+    </div>
+
+    <!-- Paper -->
+    <div class="bg-zinc-900 ring-1 ring-zinc-800 rounded-lg p-6">
+      <h2 class="text-sm font-semibold text-zinc-200 mb-3">Paper</h2>
+      {% if stroke.paper %}
+      <ul class="divide-y divide-zinc-800 mb-4">
+        <li class="flex items-center justify-between py-2">
+          <div>
+            <a href="{% url 'panel:papers:detail' pk=stroke.paper.pk %}" class="text-sm text-zinc-100 hover:underline">{{ stroke.paper|paper_label }}</a>
+          </div>
+          <form method="post" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="set_paper">
+            <input type="hidden" name="paper_id" value="">
+            <button type="submit" class="text-xs text-red-400 hover:text-red-300">Remove</button>
+          </form>
+        </li>
+      </ul>
+      {% else %}
+      <p class="text-sm text-zinc-500 mb-4">No paper linked.</p>
+      {% endif %}
+      <form method="post" class="flex items-center gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="set_paper">
+        <select name="paper_id" class="flex-1 rounded-md bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 outline-none">
+          <option value="">— pick a paper to set —</option>
+          {% for p in papers %}<option value="{{ p.pk }}" {% if stroke.paper_id == p.pk %}selected{% endif %}>{{ p|paper_label }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="px-3 py-2 bg-zinc-800 text-zinc-100 text-sm rounded hover:bg-zinc-700">Set</button>
       </form>
     </div>
 

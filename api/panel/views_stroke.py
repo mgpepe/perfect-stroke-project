@@ -95,9 +95,13 @@ def stroke_detail(request, pk):
             stroke.description = (request.POST.get('description') or '').strip()
             stroke.tags = (request.POST.get('tags') or '').strip()[:500]
             stroke.order_id = _int(request.POST.get('order_id'), stroke.order_id)
-            stroke.paper = _fk(Paper, request.POST.get('paper'))
             stroke.save()
             messages.success(request, 'Stroke updated.')
+
+        elif action == 'set_paper':
+            stroke.paper = _fk(Paper, request.POST.get('paper_id'))
+            stroke.save(update_fields=['paper'])
+            messages.success(request, 'Paper updated.' if stroke.paper else 'Paper cleared.')
 
         elif action == 'upload_image':
             image = request.FILES.get('image')
