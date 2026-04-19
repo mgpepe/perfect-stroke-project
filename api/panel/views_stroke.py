@@ -9,6 +9,7 @@ from decimal import Decimal, InvalidOperation
 
 from api.models import Contact, Paint, Paper, Sale, Stroke, StrokePaint, StrokeTool, Tool
 from .images import annotate_strokes, stroke_url
+from .sounds import delete_sound, sound_exists, sound_url, upload_sound
 from .uploads import attach_stroke_image_set, upload_stroke_image_set
 
 
@@ -142,6 +143,21 @@ def stroke_detail(request, pk):
             Sale.objects.filter(stroke=stroke).delete()
             messages.success(request, 'Sale removed.')
 
+        elif action == 'upload_sound':
+            sound = request.FILES.get('sound')
+            if not sound:
+                messages.error(request, 'Choose an audio file first.')
+            else:
+                try:
+                    upload_sound(sound, stroke.order_id)
+                    messages.success(request, 'Audio uploaded to R2.')
+                except Exception as exc:
+                    messages.error(request, f'Audio upload failed: {exc}')
+
+        elif action == 'remove_sound':
+            delete_sound(stroke.order_id)
+            messages.success(request, 'Audio removed.')
+
         return redirect('panel:strokes:detail', pk=stroke.pk)
 
     stroke_paints = (
@@ -153,6 +169,7 @@ def stroke_detail(request, pk):
         .select_related('tool__brand', 'tool__type').order_by('tool__brand__name')
     )
     sale = Sale.objects.filter(stroke=stroke).select_related('contact').first()
+    has_sound = sound_exists(stroke.order_id)
     return render(request, 'panel/stroke/detail.html', {
         'stroke': stroke,
         'stroke_paints': stroke_paints,
@@ -162,6 +179,8 @@ def stroke_detail(request, pk):
         'tools': Tool.objects.select_related('brand', 'type').order_by('brand__name', 'id'),
         'sale': sale,
         'contacts': Contact.objects.order_by('last_name', 'first_name'),
+        'has_sound': has_sound,
+        'sound_url': sound_url(stroke.order_id) if has_sound else '',
         'hero_url': stroke_url(stroke, '1800') or stroke_url(stroke, '600') or stroke_url(stroke, 'original'),
         'image_urls': {
             '100': stroke_url(stroke, '100'),
