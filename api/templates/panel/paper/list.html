@@ -1,5 +1,6 @@
 {% extends 'panel/base.html' %}
 {% load panel_tags %}
+{% load panel_tags %}
 {% block title %}Papers{% endblock %}
 
 {% block content %}
@@ -43,7 +44,7 @@
             <img src="{{ p.image.url_path|r2url }}" class="h-10 w-10 rounded object-cover ring-1 ring-zinc-700">
           {% else %}<div class="h-10 w-10 rounded bg-zinc-800"></div>{% endif %}
         </td>
-        <td class="px-4 py-2 text-sm text-zinc-100">{{ p.verbose_name|default:p.ref|default:p.id|slice:":12" }}</td>
+        <td class="px-4 py-2 text-sm text-zinc-100">{{ p|paper_label }}</td>
         <td class="px-4 py-2 text-sm text-zinc-400">{{ p.brand.name|default:"—" }}</td>
         <td class="px-4 py-2 text-sm font-mono text-zinc-300">{{ p.gsm|default:"—" }}</td>
         <td class="px-4 py-2 text-sm text-zinc-400">{{ p.paper_surface.name|default:"—" }}</td>

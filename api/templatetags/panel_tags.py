@@ -13,6 +13,28 @@ def r2url(value):
     return absolute_url(value)
 
 
+@register.filter(name='paper_label')
+def paper_label(paper):
+    """Display a Paper as '<Brand Model> - <gsm>GSM - <Surface>'.
+
+    Missing parts are skipped. If none of the structured fields are
+    populated, falls back to verbose_name → ref → short id.
+    """
+    if paper is None:
+        return ''
+    parts = []
+    if getattr(paper, 'brand_model_id', None):
+        parts.append(paper.brand_model.name)
+    if paper.gsm is not None:
+        gsm = paper.gsm
+        parts.append(f'{gsm:g}GSM' if gsm == gsm.to_integral() else f'{gsm}GSM')
+    if getattr(paper, 'paper_surface_id', None):
+        parts.append(paper.paper_surface.name)
+    if parts:
+        return ' – '.join(parts)
+    return paper.verbose_name or paper.ref or str(paper.pk)[:8]
+
+
 @register.inclusion_tag('panel/_sidebar.html', takes_context=True)
 def panel_sidebar(context):
     request = context.get('request')

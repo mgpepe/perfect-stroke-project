@@ -1,5 +1,6 @@
 {% extends 'panel/base.html' %}
-{% block title %}{{ paper }}{% endblock %}
+{% load panel_tags %}
+{% block title %}{{ paper|paper_label }}{% endblock %}
 
 {% block content %}
 <a href="{% url 'panel:papers:list' %}" class="text-sm text-zinc-500 hover:text-zinc-100 inline-flex items-center gap-1">
@@ -8,7 +9,7 @@
 </a>
 <div class="flex items-center justify-between mb-6 mt-2 gap-4 max-w-3xl">
   <div>
-    <h1 class="text-2xl font-semibold text-zinc-100">{{ paper }}</h1>
+    <h1 class="text-2xl font-semibold text-zinc-100">{{ paper|paper_label }}</h1>
     <p class="text-xs font-mono text-zinc-500 mt-1">{{ paper.id }}</p>
   </div>
   <a href="{% url 'panel:papers:delete' pk=paper.pk %}" class="text-sm text-red-400 hover:text-red-300">Delete</a>

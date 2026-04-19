@@ -1,10 +1,11 @@
 {% extends 'panel/base.html' %}
+{% load panel_tags %}
 {% block title %}Delete paper{% endblock %}
 {% block content %}
 <div class="max-w-lg">
   <h1 class="text-2xl font-semibold text-zinc-100 mb-4">Delete paper?</h1>
   <div class="bg-zinc-900 ring-1 ring-red-500/30 rounded-lg p-6">
-    <p class="mt-2 text-lg font-semibold text-zinc-100">{{ paper }}</p>
+    <p class="mt-2 text-lg font-semibold text-zinc-100">{{ paper|paper_label }}</p>
     <p class="mt-4 text-sm text-red-300">Strokes referencing this paper will have their paper FK set null.</p>
     <form method="post" class="mt-6 flex items-center justify-end gap-3">
       {% csrf_token %}
