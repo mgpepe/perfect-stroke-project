@@ -60,7 +60,7 @@ def stroke_new(request):
     if request.method == 'POST':
         stroke = Stroke.objects.create(
             title=(request.POST.get('title') or '').strip()[:255],
-            description=(request.POST.get('description') or '').strip(),
+            description=_strip_html((request.POST.get('description') or '').strip()),
             tags=(request.POST.get('tags') or '').strip()[:500],
             order_id=_int(request.POST.get('order_id'), 0),
             paper=_fk(Paper, request.POST.get('paper')),
@@ -92,7 +92,7 @@ def stroke_detail(request, pk):
 
         if action == 'save':
             stroke.title = (request.POST.get('title') or '').strip()[:255]
-            stroke.description = (request.POST.get('description') or '').strip()
+            stroke.description = _strip_html((request.POST.get('description') or '').strip())
             stroke.tags = (request.POST.get('tags') or '').strip()[:500]
             stroke.order_id = _int(request.POST.get('order_id'), stroke.order_id)
             stroke.save()
@@ -214,6 +214,17 @@ def stroke_delete(request, pk):
 
 
 # ─── Helpers ────────────────────────────────────────────────────
+
+_HTML_TAG_RE = __import__('re').compile(r'<[^>]+>')
+
+
+def _strip_html(value: str) -> str:
+    """Remove simple HTML tags and collapse whitespace. Preserves inner text."""
+    if not value:
+        return ''
+    cleaned = _HTML_TAG_RE.sub('', value)
+    return cleaned.strip()
+
 
 def _int(value, default):
     try:
