@@ -58,6 +58,7 @@ def home(request):
 
     return render(request, 'panel/home.html', {
         'device_stats': device_stats,
+        'sales_stats': sales_stats,
         'artifacts': artifacts,
         'taxonomy': taxonomy,
         'files_total': files_total,
