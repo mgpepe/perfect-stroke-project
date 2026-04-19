@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 from .models import (
     Brand, BrandModel, Color, File, Store, PaperMaterial, PaperSurface,
@@ -461,6 +461,7 @@ def _authenticate_device(request, device_id):
 
 
 @api_view(['GET'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def device_config(request, device_id):
     device, err = _authenticate_device(request, device_id)
@@ -473,6 +474,7 @@ def device_config(request, device_id):
 
 
 @api_view(['POST'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def device_heartbeat(request, device_id):
     device, err = _authenticate_device(request, device_id)
