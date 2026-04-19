@@ -473,6 +473,24 @@ def device_config(request, device_id):
     })
 
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def device_wifi(request, device_id):
+    """Return the set of WiFi networks this device should know.
+
+    The Pi polls this and writes a NetworkManager connection file for each
+    entry. Higher `priority` wins when multiple networks are reachable.
+    """
+    device, err = _authenticate_device(request, device_id)
+    if err is not None:
+        return err
+    networks = list(device.wifi_networks.order_by('-priority', 'ssid').values(
+        'ssid', 'password', 'priority', 'country',
+    ))
+    return Response({'networks': networks})
+
+
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([AllowAny])

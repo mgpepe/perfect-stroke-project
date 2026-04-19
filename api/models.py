@@ -329,6 +329,40 @@ class Device(models.Model):
         return self.name or self.id
 
 
+class WifiNetwork(models.Model):
+    """A WiFi network known to a Device.
+
+    The Pi polls /api/devices/<id>/wifi/ and writes a NetworkManager
+    connection file for each row. Higher priority wins when multiple
+    networks are in range.
+    """
+
+    id = models.CharField(max_length=36, primary_key=True, default=generate_id)
+    device = models.ForeignKey(
+        Device, on_delete=models.CASCADE, related_name='wifi_networks',
+    )
+    ssid = models.CharField(max_length=64)
+    password = models.CharField(max_length=128, blank=True,
+                                help_text='Leave empty for open networks.')
+    priority = models.IntegerField(
+        default=50,
+        help_text='Higher wins when multiple networks are reachable (NM autoconnect-priority).',
+    )
+    country = models.CharField(max_length=2, default='BG',
+                               help_text='Two-letter country code (regulatory domain).')
+    notes = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'wifi_networks'
+        ordering = ['-priority', 'ssid']
+        unique_together = ('device', 'ssid')
+
+    def __str__(self):
+        return f'{self.device_id}:{self.ssid}'
+
+
 class ModifyJob(models.Model):
     """A natural-language modification request executed by an AI agent.
 

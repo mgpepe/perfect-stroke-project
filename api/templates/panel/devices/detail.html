@@ -26,6 +26,10 @@
         <span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span> unknown
       </span>
     {% endif %}
+    <a href="{% url 'panel:devices:wifi_list' device_id=device.id %}" class="ml-auto text-xs text-zinc-400 hover:text-zinc-100 inline-flex items-center gap-1.5 px-3 py-1 rounded-md ring-1 ring-zinc-700 hover:ring-zinc-500">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12 20.25h.008v.008H12v-.008z"/></svg>
+      WiFi networks
+    </a>
   </div>
 </div>
 

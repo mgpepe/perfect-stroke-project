@@ -25,4 +25,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('devices/<str:device_id>/config/', views.device_config, name='device-config'),
     path('devices/<str:device_id>/heartbeat/', views.device_heartbeat, name='device-heartbeat'),
+    path('devices/<str:device_id>/wifi/', views.device_wifi, name='device-wifi'),
 ]

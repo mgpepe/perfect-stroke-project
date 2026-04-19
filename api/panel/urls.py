@@ -2,7 +2,7 @@ from django.urls import include, path
 
 from . import (
     views_contact, views_device, views_generic, views_home, views_modify,
-    views_paint, views_paper, views_stroke, views_tool,
+    views_paint, views_paper, views_stroke, views_tool, views_wifi,
 )
 from .registry import LOOKUPS
 
@@ -11,6 +11,9 @@ devices_urls = ([
     path('', views_device.device_list, name='list'),
     path('new/', views_device.device_new, name='new'),
     path('<str:device_id>/', views_device.device_detail, name='detail'),
+    path('<str:device_id>/wifi/', views_wifi.wifi_list, name='wifi_list'),
+    path('<str:device_id>/wifi/<str:network_id>/delete/',
+         views_wifi.wifi_delete, name='wifi_delete'),
 ], 'devices')
 
 strokes_urls = ([
