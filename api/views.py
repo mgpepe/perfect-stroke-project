@@ -9,10 +9,13 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
+from django.utils import timezone
+from rest_framework.decorators import api_view, permission_classes
+
 from .models import (
     Brand, BrandModel, Color, File, Store, PaperMaterial, PaperSurface,
     ToolType, ToolShape, ToolSize, BrushHairType, Pigment, PigmentPaint,
-    Paint, Paper, Tool, Stroke, StrokePaint, StrokeTool,
+    Paint, Paper, Tool, Stroke, StrokePaint, StrokeTool, Device,
 )
 from .serializers import (
     BrandSerializer, BrandModelGetSerializer, BrandModelEditSerializer,
@@ -432,3 +435,63 @@ class StrokeViewSet(FilterByIdsMixin, viewsets.ModelViewSet):
             strokes.update(paper_id=paper_id)
 
         return Response({'status': 'ok'})
+
+
+# ─── Remote device poll/heartbeat endpoints ──────────────────────
+
+def _authenticate_device(request, device_id):
+    """Return (device, None) on success or (None, Response) on auth failure."""
+    auth = request.headers.get('Authorization', '')
+    if not auth.startswith('Bearer '):
+        return None, Response(
+            {'detail': 'Missing Bearer token'}, status=status.HTTP_401_UNAUTHORIZED,
+        )
+    token = auth[len('Bearer '):].strip()
+    try:
+        device = Device.objects.get(id=device_id)
+    except Device.DoesNotExist:
+        return None, Response(status=status.HTTP_404_NOT_FOUND)
+    # constant-time compare
+    import hmac
+    if not hmac.compare_digest(token, device.token):
+        return None, Response(
+            {'detail': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED,
+        )
+    return device, None
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def device_config(request, device_id):
+    device, err = _authenticate_device(request, device_id)
+    if err is not None:
+        return err
+    return Response({
+        'id': device.id,
+        'desired_git_ref': device.desired_git_ref,
+    })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def device_heartbeat(request, device_id):
+    device, err = _authenticate_device(request, device_id)
+    if err is not None:
+        return err
+    reported_ref = (request.data.get('reported_ref') or '').strip()[:64]
+    reported_status = (request.data.get('status') or 'unknown').strip()[:16]
+    reported_error = (request.data.get('error') or '').strip()[:4000]
+    valid_statuses = {c[0] for c in Device.STATUS_CHOICES}
+    if reported_status not in valid_statuses:
+        reported_status = 'unknown'
+    now = timezone.now()
+    fields = ['last_reported_ref', 'last_status', 'last_error', 'last_heartbeat_at']
+    if reported_ref and reported_ref != device.last_reported_ref:
+        device.last_update_at = now
+        fields.append('last_update_at')
+    device.last_reported_ref = reported_ref
+    device.last_status = reported_status
+    device.last_error = reported_error
+    device.last_heartbeat_at = now
+    device.save(update_fields=fields)
+    return Response({'ok': True, 'desired_git_ref': device.desired_git_ref})

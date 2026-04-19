@@ -1,9 +1,14 @@
+import secrets
 import uuid
 from django.db import models
 
 
 def generate_id():
     return str(uuid.uuid4())
+
+
+def generate_device_token():
+    return secrets.token_hex(32)
 
 
 class Brand(models.Model):
@@ -287,3 +292,37 @@ class StrokeTool(models.Model):
 
     class Meta:
         db_table = 'stroke_tools'
+
+
+class Device(models.Model):
+    """A remote device (e.g. Raspberry Pi) polling for a desired code version.
+
+    The server is the control plane for *which git ref should run*. App-level
+    runtime config (tick interval, canvas size, ...) stays on the device.
+    """
+
+    STATUS_CHOICES = [
+        ('ok', 'OK'),
+        ('updating', 'Updating'),
+        ('failed', 'Failed'),
+        ('unknown', 'Unknown'),
+    ]
+
+    id = models.CharField(max_length=64, primary_key=True)
+    name = models.CharField(max_length=128, blank=True)
+    token = models.CharField(max_length=64, default=generate_device_token, editable=False)
+    desired_git_ref = models.CharField(max_length=64, default='main')
+    last_reported_ref = models.CharField(max_length=64, blank=True)
+    last_status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='unknown')
+    last_error = models.TextField(blank=True)
+    last_heartbeat_at = models.DateTimeField(null=True, blank=True)
+    last_update_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'devices'
+        ordering = ['id']
+
+    def __str__(self):
+        return self.name or self.id
