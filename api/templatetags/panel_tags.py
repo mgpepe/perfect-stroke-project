@@ -1,9 +1,16 @@
 from django import template
 from django.urls import NoReverseMatch, reverse
 
+from api.panel.images import absolute_url
 from api.panel.registry import nav_for_template
 
 register = template.Library()
+
+
+@register.filter(name='r2url')
+def r2url(value):
+    """Normalize a File.url_path (which may be a relative R2 key) to a full URL."""
+    return absolute_url(value)
 
 
 @register.inclusion_tag('panel/_sidebar.html', takes_context=True)

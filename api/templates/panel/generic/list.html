@@ -1,4 +1,5 @@
 {% extends 'panel/base.html' %}
+{% load panel_tags %}
 {% block title %}{{ panel.plural }}{% endblock %}
 
 {% block content %}
@@ -46,7 +47,7 @@
               </div>
             {% elif cell.kind == 'file_preview' %}
               {% if cell.value %}
-                <img src="{{ cell.value }}" class="h-12 w-12 rounded object-cover ring-1 ring-zinc-800" alt="">
+                <img src="{{ cell.value|r2url }}" class="h-12 w-12 rounded object-cover ring-1 ring-zinc-800" alt="">
               {% else %}
                 <div class="h-12 w-12 rounded bg-zinc-800"></div>
               {% endif %}

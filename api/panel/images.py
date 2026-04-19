@@ -24,6 +24,23 @@ def r2_base() -> str:
     return (settings.R2_PUBLIC_URL or '').rstrip('/')
 
 
+def absolute_url(value: str) -> str:
+    """Prefix R2 public URL when a File.url_path holds a relative key.
+
+    Older imports wrote `url_path='stroke-images/1800/…jpg'` (the R2
+    object key) instead of a full URL, so the browser resolved the
+    <img src> against the current page path. Normalize here.
+    """
+    if not value:
+        return ''
+    if value.startswith(('http://', 'https://', '//', 'data:')):
+        return value
+    base = r2_base()
+    if not base:
+        return value
+    return f'{base}/{value.lstrip("/")}'
+
+
 def stroke_url(stroke, size: str) -> str:
     """Best-effort URL for a stroke at a given size.
 
@@ -37,15 +54,14 @@ def stroke_url(stroke, size: str) -> str:
     fk_attr = f'image_{size}'
     fk = getattr(stroke, fk_attr, None)
     if fk and getattr(fk, 'url_path', ''):
-        return fk.url_path
+        return absolute_url(fk.url_path)
 
     paths = _r2_map().get(stroke.id)
     if paths and size in paths:
-        base = r2_base()
-        return f'{base}/{paths[size]}' if base else paths[size]
+        return absolute_url(paths[size])
 
     if size == 'original' and getattr(stroke, 'image_url', ''):
-        return stroke.image_url
+        return absolute_url(stroke.image_url)
 
     return ''
 

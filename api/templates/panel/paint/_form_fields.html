@@ -1,3 +1,4 @@
+{% load panel_tags %}
 {# Shared paint form fields. Expects `paint` (may be None) in context. #}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
   <div>
@@ -101,7 +102,7 @@
   <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Image</label>
   {% if paint.image %}
     <div class="flex items-start gap-3 mb-2">
-      <img src="{{ paint.image.url_path }}" class="h-20 w-20 rounded object-cover ring-1 ring-zinc-700">
+      <img src="{{ paint.image.url_path|r2url }}" class="h-20 w-20 rounded object-cover ring-1 ring-zinc-700">
       <div class="text-xs text-zinc-500 font-mono truncate">{{ paint.image.original_file_name }}</div>
     </div>
   {% endif %}
