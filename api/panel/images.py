@@ -53,25 +53,15 @@ _MAP_SIZE_FALLBACK = {
 def stroke_url(stroke, size: str) -> str:
     """Best-effort R2 URL for a stroke at a given size.
 
-    If the stroke appears in r2_image_map.json, trust ONLY the map —
-    the File FKs on legacy rows point at keys that don't exist in R2,
-    so mixing sources produces broken images. Within the map, fall
-    back through nearby sizes before giving up.
-
-    For strokes not in the map (i.e. uploaded via the new panel flow),
-    use the File FK cascade, then image_url.
+    Uses only the File FKs on the Stroke — the legacy r2_image_map
+    data has been migrated in. Falls through nearby sizes if the
+    requested one isn't linked, then to stroke.image_url for
+    'original' as a last resort.
     """
-    paths = _r2_map().get(stroke.id)
-    if paths:
-        for candidate in _MAP_SIZE_FALLBACK.get(size, [size]):
-            if candidate in paths:
-                return absolute_url(paths[candidate])
-        return ''
-
-    fk_attr = f'image_{size}'
-    fk = getattr(stroke, fk_attr, None)
-    if fk and getattr(fk, 'url_path', ''):
-        return absolute_url(fk.url_path)
+    for candidate in _MAP_SIZE_FALLBACK.get(size, [size]):
+        fk = getattr(stroke, f'image_{candidate}', None)
+        if fk and getattr(fk, 'url_path', ''):
+            return absolute_url(fk.url_path)
 
     if size == 'original' and getattr(stroke, 'image_url', ''):
         return absolute_url(stroke.image_url)
