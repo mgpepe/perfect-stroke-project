@@ -46,19 +46,21 @@ def stroke_url(stroke, size: str) -> str:
 
     size: '100' | '600' | '1800' | '2500' | 'original'
     Order of precedence:
-        1. File FK on the Stroke (image_{size})
-        2. Matching entry in r2_image_map.json
-        3. stroke.image_url (full URL column) — only for 'original' fallback
-        4. '' if nothing is known
+        1. r2_image_map.json entry (authoritative for legacy imports —
+           many File FKs point at nonexistent keys).
+        2. File FK on the Stroke (image_{size}) for rows uploaded via
+           the new panel flow.
+        3. stroke.image_url (full URL column) — only for 'original'.
+        4. '' if nothing is known.
     """
+    paths = _r2_map().get(stroke.id)
+    if paths and size in paths:
+        return absolute_url(paths[size])
+
     fk_attr = f'image_{size}'
     fk = getattr(stroke, fk_attr, None)
     if fk and getattr(fk, 'url_path', ''):
         return absolute_url(fk.url_path)
-
-    paths = _r2_map().get(stroke.id)
-    if paths and size in paths:
-        return absolute_url(paths[size])
 
     if size == 'original' and getattr(stroke, 'image_url', ''):
         return absolute_url(stroke.image_url)
