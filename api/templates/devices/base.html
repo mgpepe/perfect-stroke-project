@@ -1,0 +1,46 @@
+{% load static %}
+<!doctype html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Devices{% endblock %} — Perfect Stroke</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full antialiased text-gray-900">
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="{% url 'devices:list' %}" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 rounded-md bg-gradient-to-br from-slate-800 to-slate-600 flex items-center justify-center text-white font-bold text-sm">PS</div>
+        <span class="font-semibold text-gray-900 group-hover:text-gray-700">Devices</span>
+      </a>
+      <div class="flex items-center gap-4 text-sm">
+        <a href="/admin/" class="text-gray-500 hover:text-gray-900">Django admin</a>
+        <span class="text-gray-400">·</span>
+        <span class="text-gray-600">{{ request.user.username }}</span>
+        <form method="post" action="/admin/logout/" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="text-gray-500 hover:text-gray-900">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="max-w-6xl mx-auto px-6 pt-4 space-y-2">
+      {% for m in messages %}
+        <div class="rounded-md px-4 py-2 text-sm border
+          {% if m.tags == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800
+          {% elif m.tags == 'error' %}bg-red-50 border-red-200 text-red-800
+          {% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+          {{ m }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

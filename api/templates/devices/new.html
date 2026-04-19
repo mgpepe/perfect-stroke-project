@@ -1,0 +1,42 @@
+{% extends 'devices/base.html' %}
+{% block title %}New device{% endblock %}
+
+{% block content %}
+<div class="max-w-xl">
+  <a href="{% url 'devices:list' %}" class="text-sm text-gray-500 hover:text-gray-900 inline-flex items-center gap-1">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back to devices
+  </a>
+  <h1 class="text-2xl font-semibold mt-2 mb-6">New device</h1>
+
+  <form method="post" class="bg-white rounded-lg ring-1 ring-gray-200 p-6 space-y-5">
+    {% csrf_token %}
+    <div>
+      <label for="id" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">ID <span class="text-red-500">*</span></label>
+      <input type="text" name="id" id="id" value="{{ form.id|default:'' }}" required
+             class="block w-full rounded-md border-gray-300 border px-3 py-2 text-sm font-mono shadow-sm focus:border-slate-800 focus:ring-1 focus:ring-slate-800 outline-none"
+             placeholder="e.g. psp-epaper-02">
+      <p class="mt-1 text-xs text-gray-500">Stable string used by the device in its config. Lowercase, hyphens only.</p>
+    </div>
+
+    <div>
+      <label for="name" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Name</label>
+      <input type="text" name="name" id="name" value="{{ form.name|default:'' }}"
+             class="block w-full rounded-md border-gray-300 border px-3 py-2 text-sm shadow-sm focus:border-slate-800 focus:ring-1 focus:ring-slate-800 outline-none"
+             placeholder="Human-readable label">
+    </div>
+
+    <div>
+      <label for="desired_git_ref" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Desired git ref</label>
+      <input type="text" name="desired_git_ref" id="desired_git_ref" value="{{ form.desired_git_ref|default:'main' }}"
+             class="block w-full rounded-md border-gray-300 border px-3 py-2 text-sm font-mono shadow-sm focus:border-slate-800 focus:ring-1 focus:ring-slate-800 outline-none">
+    </div>
+
+    <div class="flex justify-end pt-2">
+      <button type="submit" class="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800">
+        Create device
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
