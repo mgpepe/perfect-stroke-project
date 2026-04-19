@@ -30,7 +30,10 @@ def stroke_list(request):
     )
     query = request.GET.get('q', '').strip()
     if query:
-        qs = qs.filter(Q(title__icontains=query) | Q(tags__icontains=query))
+        filters = Q(title__icontains=query) | Q(tags__icontains=query)
+        if query.isdigit():
+            filters |= Q(order_id=int(query))
+        qs = qs.filter(filters)
     try:
         page = max(1, int(request.GET.get('page', '1')))
     except ValueError:
