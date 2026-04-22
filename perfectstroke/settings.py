@@ -71,6 +71,12 @@ DATABASES = {
 # Custom user model
 AUTH_USER_MODEL = 'authentication.User'
 
+# Accept login by either username or email (case-insensitive).
+AUTHENTICATION_BACKENDS = [
+    'authentication.backends.UsernameOrEmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # Password validation - matching .NET config (min 3 chars, no special requirements)
 AUTH_PASSWORD_VALIDATORS = [
     {
