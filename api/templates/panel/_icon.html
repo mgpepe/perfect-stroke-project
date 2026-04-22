@@ -1,0 +1,24 @@
+{# SVG icon switcher, rendered by `{% include 'panel/_icon.html' with key='brush' %}`. #}
+{% if key == 'device' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+{% elif key == 'brush' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.06 11.9 17.5 3.5a2 2 0 1 1 2.83 2.83l-8.4 8.4"/><path d="M7 15c-2 0-4 1-4 4 0 1 1 2 3 2 4 0 8-2 8-6 0-1-1-2-2-2z"/></svg>
+{% elif key == 'droplet' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12z"/></svg>
+{% elif key == 'paper' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+{% elif key == 'wrench' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.3 2.3-2.4-2.4z"/></svg>
+{% elif key == 'user' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+{% elif key == 'swatch' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12a10 10 0 1 1 10 10H9a5 5 0 0 1-5-5v-1a3 3 0 0 0-2-4z"/><circle cx="7.5" cy="14.5" r=".5" fill="currentColor"/><circle cx="10.5" cy="8.5" r=".5" fill="currentColor"/><circle cx="16" cy="8" r=".5" fill="currentColor"/><circle cx="18" cy="13" r=".5" fill="currentColor"/></svg>
+{% elif key == 'shop' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 5 3h14l2 4"/><path d="M3 7h18v4a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 11v10h14V11"/></svg>
+{% elif key == 'file' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-3.5-3.5-6 6"/></svg>
+{% elif key == 'sparkle' %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M19 14v4M17 16h4M5 5v2M4 6h2"/></svg>
+{% else %}
+  <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 12-6.5 6.5a2 2 0 0 1-2.83 0L3 9.5V3h6.5L21 14.5z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
+{% endif %}

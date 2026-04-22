@@ -7,8 +7,11 @@
   <title>{% block title %}Panel{% endblock %} — Perfect Stroke</title>
   <meta name="color-scheme" content="dark">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="h-full antialiased text-zinc-100 bg-zinc-950 flex">
+<body class="h-full antialiased text-zinc-100 bg-zinc-950 flex"
+      x-data="{ sidebarOpen: (() => { try { const v = localStorage.getItem('psp_sidebar_open'); return v === null ? true : v === '1'; } catch(e) { return true; } })() }"
+      x-effect="(() => { try { localStorage.setItem('psp_sidebar_open', sidebarOpen ? '1' : '0'); } catch(e) {} })()">
   {% panel_sidebar %}
 
   <div class="flex-1 min-w-0">
